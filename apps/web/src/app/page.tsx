@@ -82,7 +82,7 @@ export default function Home() {
           {/* Stats Grid */}
           <div data-aos="fade-up" data-aos-delay="400" className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mt-24">
             <div className="bg-muted backdrop-blur-sm border border-border p-6 md:p-8 rounded-2xl hover:border-primary/30 transition group">
-              <div className="text-3xl md:text-4xl font-black text-purple-400 mb-2 group-hover:scale-110 transition">50+</div>
+              <div className="text-3xl md:text-4xl font-black text-purple-400 mb-2 group-hover:scale-110 transition">25+</div>
               <div className="text-muted-foreground text-xs md:text-sm font-bold">سنة من الخبرة الإبداعية</div>
             </div>
             <div className="bg-muted backdrop-blur-sm border border-border p-6 md:p-8 rounded-2xl hover:border-primary/30 transition group">
@@ -94,7 +94,7 @@ export default function Home() {
               <div className="text-muted-foreground text-xs md:text-sm font-bold">مشروع إعلاني ناجح</div>
             </div>
             <div className="bg-muted backdrop-blur-sm border border-border p-6 md:p-8 rounded-2xl hover:border-primary/30 transition group">
-              <div className="text-3xl md:text-4xl font-black text-yellow-400 mb-2 group-hover:scale-110 transition">20+</div>
+              <div className="text-3xl md:text-4xl font-black text-yellow-400 mb-2 group-hover:scale-110 transition">50+</div>
               <div className="text-muted-foreground text-xs md:text-sm font-bold">خبير في الدعاية والإعلان</div>
             </div>
           </div>
