@@ -68,7 +68,7 @@ export default function Home() {
             </div>
           </div>
           <p className="text-lg md:text-xl mb-12 text-muted-foreground max-w-2xl mx-auto font-normal">
-            {siteData.companyName} - إبداع يلتحقي الحدود. تميز لا ينسى
+            {siteData.companyName} - إبداع يفوق الحدود. تميز يصنع التاريخ
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-reverse sm:space-x-6">
             <a href="/products" className="btn-primary text-lg px-10 py-4 flex items-center">
