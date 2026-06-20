@@ -1,0 +1,348 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// ==================== AUTH ====================
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("user") // user | admin | manager
+  isActive  Boolean  @default(true)
+  avatarUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  // Relations
+  campaigns    Campaign[]    @relation("CampaignCreator")
+  automations  Automation[]  @relation("AutomationCreator")
+  leads        Lead[]        @relation("LeadAssignee")
+  deals        Deal[]        @relation("DealAssignee")
+  projects     Project[]     @relation("ProjectCreator")
+  socialConnections SocialMediaConnection[]
+  aiChatMessages AIChatMessage[]
+  auditLogs AuditLog[]
+
+  @@index([deletedAt])
+}
+
+// ==================== MARKETING ====================
+model Campaign {
+  id          String   @id @default(cuid())
+  name        String
+  type        String   @default("Digital")
+  status      String   @default("Draft") // Draft | Active | Paused | Completed
+  description String?
+  budget      Decimal  @default(0)
+  spent       Decimal  @default(0)
+  revenue     Decimal  @default(0)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdById String
+  createdBy   User     @relation("CampaignCreator", fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  ads Ad[]
+
+  @@index([deletedAt])
+}
+
+model Ad {
+  id          String   @id @default(cuid())
+  campaignId  String
+  campaign    Campaign @relation(fields: [campaignId], references: [id])
+  platform    String   @default("Facebook")
+  title       String
+  description String?
+  status      String   @default("Draft") // Draft | Active | Paused | Completed
+  budget      Decimal  @default(0)
+  spent       Decimal  @default(0)
+  reach       Int      @default(0)
+  clicks      Int      @default(0)
+  conversions Int      @default(0)
+  ctr         Float    @default(0)
+  externalId String?
+  creativeUrl String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  @@index([deletedAt])
+  @@index([campaignId])
+}
+
+model Automation {
+  id          String   @id @default(cuid())
+  name        String
+  trigger     String   @default("new_lead") // new_lead | new_client | deal_won | campaign_started
+  action      String   @default("send_email") // send_email | send_sms | assign_team | create_task
+  config      String?  // JSON stringified
+  isActive    Boolean  @default(true)
+  createdById String
+  createdBy   User     @relation("AutomationCreator", fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  @@index([deletedAt])
+}
+
+// ==================== CRM ====================
+model Client {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  phone       String?
+  company     String?
+  address     String?
+  totalOrders Int      @default(0)
+  totalSpent  Decimal  @default(0)
+  status      String   @default("Active") // Active | Inactive | VIP
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  deals Deal[]
+  invoices Invoice[]
+
+  @@index([deletedAt])
+  @@index([email])
+}
+
+model Request {
+  id          String   @id @default(cuid())
+  name        String
+  phone       String
+  projectDetails String
+  status      String   @default("New") // New | Contacted | In Progress | Completed | Cancelled
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  @@index([deletedAt])
+  @@index([status])
+}
+
+model Lead {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  phone       String?
+  source      String   @default("Website") // Website | Facebook | Google Ads | Referral | Direct | AI
+  status      String   @default("New") // New | Contacted | Qualified | Converted | Lost
+  score       Int      @default(50) // 0-100
+  notes       String?
+  assignedTo  String?
+  assignee    User?    @relation("LeadAssignee", fields: [assignedTo], references: [id])
+  value       Decimal  @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  @@index([deletedAt])
+  @@index([email])
+  @@index([status])
+}
+
+model Deal {
+  id          String   @id @default(cuid())
+  name        String
+  clientId    String
+  client      Client   @relation(fields: [clientId], references: [id])
+  value       Decimal  @default(0)
+  stage       String   @default("Discovery") // Discovery | Proposal | Negotiation | Won | Lost
+  probability Int      @default(50) // 0-100
+  notes       String?
+  expectedCloseDate DateTime?
+  assignedTo  String?
+  assignee    User?    @relation("DealAssignee", fields: [assignedTo], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  @@index([deletedAt])
+  @@index([clientId])
+  @@index([stage])
+}
+
+// ==================== PRODUCTS ====================
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  sku         String   @unique
+  description String?
+  category    String   @default("عام")
+  price       Decimal  @default(0)
+  cost        Decimal  @default(0)
+  stock       Int      @default(0)
+  lowStockThreshold Int @default(5)
+  imageUrl    String?
+  pricingType String   @default("piece") // piece | meter
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  @@index([deletedAt])
+  @@index([sku])
+  @@index([category])
+}
+
+// ==================== PORTFOLIO ====================
+model Portfolio {
+  id          String   @id @default(cuid())
+  title       String
+  category    String   @default("تصميم")
+  description String?
+  imageUrl    String
+  isFeatured  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  @@index([deletedAt])
+  @@index([category])
+  @@index([isFeatured])
+}
+
+// ==================== PROJECTS ====================
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  status      String   @default("Planning") // Planning | Active | On Hold | Completed | Cancelled
+  priority    String   @default("Medium") // Low | Medium | High | Urgent
+  budget      Decimal  @default(0)
+  spent       Decimal  @default(0)
+  progress    Int      @default(0) // 0-100
+  startDate   DateTime?
+  endDate     DateTime?
+  createdById String
+  createdBy   User     @relation("ProjectCreator", fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  @@index([deletedAt])
+  @@index([status])
+}
+
+// ==================== TEAM ====================
+model Employee {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  phone       String?
+  position    String?
+  department  String?
+  salary      Decimal  @default(0)
+  hireDate    DateTime?
+  isActive    Boolean  @default(true)
+  avatarUrl   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  @@index([deletedAt])
+}
+
+// ==================== FINANCE ====================
+model Invoice {
+  id          String   @id @default(cuid())
+  number      String   @unique
+  clientId    String?
+  client      Client?  @relation(fields: [clientId], references: [id])
+  clientName  String
+  clientEmail String?
+  amount      Decimal  @default(0)
+  tax         Decimal  @default(0)
+  total       Decimal  @default(0)
+  status      String   @default("Draft") // Draft | Sent | Paid | Overdue | Cancelled
+  issueDate   DateTime @default(now())
+  dueDate     DateTime?
+  paidDate    DateTime?
+  items       String?  // JSON stringified
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  @@index([deletedAt])
+  @@index([status])
+  @@index([clientId])
+  @@index([issueDate])
+}
+
+// ==================== AI & SOCIAL MEDIA ====================
+model AIChatMessage {
+  id        String   @id @default(cuid())
+  userId    String
+  role      String   // user | assistant
+  content   String
+  action    String?
+  tokensUsed Int     @default(0)
+  promptTokens Int @default(0)
+  completionTokens Int @default(0)
+  model     String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model SocialMediaConnection {
+  id          String   @id @default(cuid())
+  userId      String
+  platform    String   // Facebook | Instagram | WhatsApp | TikTok | Twitter
+  accessToken String
+  refreshToken String?
+  expiresAt   DateTime?
+  pageId      String?
+  pageName    String?
+  pageAccessToken String?
+  phoneNumber String? // for WhatsApp
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([platform])
+  @@index([isActive])
+}
+
+// ==================== AUDIT LOGS ====================
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  action      String
+  entityType String
+  entityId    String?
+  oldValue   String?
+  newValue   String?
+  ipAddress  String?
+  userAgent  String?
+  createdAt   DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([action])
+  @@index([entityType, entityId])
+}

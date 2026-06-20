@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #FFD700;
+  --primary-dark: #B8860B;
+  --bg-deep: #050505;
+  --bg-card: #0F0F0F;
+  --bg-hover: #1A1A1A;
+  --text-main: #ffffff;
+  --text-muted: #A0A0A0;
+  --accent: #FFD700;
+  --border: rgba(255, 215, 0, 0.1);
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}
+
+@layer components {
+  .luxury-card {
+    @apply bg-card border border-border rounded-2xl p-6 transition-all duration-300;
+    @apply hover:border-primary/40 hover:shadow-glow hover:-translate-y-1;
+  }
+
+  .glass-header {
+    @apply bg-background/70 backdrop-blur-2xl border-b border-border sticky top-0 z-40;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-primary-foreground font-bold py-3 px-6 rounded-2xl hover:scale-105 transition-transform shadow-glow;
+  }
+
+  .input-field {
+    @apply bg-muted border border-border rounded-2xl py-3 px-4 text-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}

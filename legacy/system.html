@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALBAHRAWY OS - نظام الإدارة المتكامل</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --primary-light: #dbeafe;
+            --bg-main: #f8fafc;
+            --bg-sidebar: #ffffff;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-sidebar);
+            border-left: 1px solid var(--border);
+            height: 100vh;
+            position: fixed;
+            right: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 16px;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 12px 32px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .logo-box {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 900;
+            font-size: 20px;
+        }
+
+        .nav-menu {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-main);
+            color: var(--primary);
+        }
+
+        .nav-item.active {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-right: 280px;
+            flex: 1;
+            padding: 32px 40px;
+            width: calc(100% - 280px);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .page-info h1 {
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        /* Tabs Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Cards & Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        /* Box & Table */
+        .card-box {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h3 {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .card-body {
+            padding: 24px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: right;
+            padding: 12px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+            background: #f8fafc;
+        }
+
+        td {
+            padding: 16px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-danger { background: #fee2e2; color: var(--danger); }
+        .btn-danger:hover { background: #fecaca; }
+
+        /* Modal */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-backdrop.active { display: flex; }
+
+        .modal {
+            background: white;
+            width: 500px;
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+        .form-control { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-box">B</div>
+            <div style="font-weight: 800; font-size: 18px;">ALBAHRAWY OS</div>
+        </div>
+        <nav class="nav-menu">
+            <div class="nav-item active" onclick="switchTab('dashboard', this)"> لوحة التحكم</div>
+            <div class="nav-item" onclick="switchTab('clients', this)">إدارة العملاء</div>
+            <div class="nav-item" onclick="switchTab('suppliers', this)">الموردين</div>
+            <div class="nav-item" onclick="switchTab('departments', this)">الأقسام</div>
+            <div class="nav-item" onclick="switchTab('products', this)">المنتجات</div>
+            <div class="nav-item" onclick="switchTab('marketing', this)">التسويق الذكي</div>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <h1 id="pageTitle">لوحة التحكم</h1>
+            <div id="currentDate" style="color: var(--text-muted); font-weight: 600;">--</div>
+        </header>
+
+        <!-- DASHBOARD -->
+        <div id="dashboard-tab" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="dash-revenue">0</div>
+                    <div class="stat-label">إجمالي الإيرادات</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="dash-clients">0</div>
+                    <div class="stat-label">العملاء النشطين</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="dash-suppliers">0</div>
+                    <div class="stat-label">الموردين</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">94%</div>
+                    <div class="stat-label">كفاءة التشغيل</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CLIENTS -->
+        <div id="clients-tab" class="tab-content">
+            <div class="card-box">
+                <div class="card-header">
+                    <h3>سجل العملاء</h3>
+                    <button class="btn btn-primary" onclick="openModal('clientModal')">إضافة عميل</button>
+                </div>
+                <div class="card-body">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>الاسم</th>
+                                <th>الشركة</th>
+                                <th>الإجمالي</th>
+                                <th>المدفوع</th>
+                                <th>المتبقي</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUPPLIERS -->
+        <div id="suppliers-tab" class="tab-content">
+            <div class="card-box">
+                <div class="card-header">
+                    <h3>سجل الموردين</h3>
+                    <button class="btn btn-primary" onclick="openModal('supplierModal')">إضافة مورد</button>
+                </div>
+                <div class="card-body">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>المورد</th>
+                                <th>الشركة</th>
+                                <th>المعاملات</th>
+                                <th>المسدد</th>
+                                <th>المتبقي</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="suppliersTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- DEPARTMENTS -->
+        <div id="departments-tab" class="tab-content">
+            <div class="card-box">
+                <div class="card-header">
+                    <h3>الأقسام الإدارية</h3>
+                    <button class="btn btn-primary" onclick="openModal('deptModal')">إضافة قسم</button>
+                </div>
+                <div class="card-body">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>القسم</th>
+                                <th>المدير</th>
+                                <th>الموظفين</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="departmentsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRODUCTS -->
+        <div id="products-tab" class="tab-content">
+            <div class="card-box">
+                <div class="card-header">
+                    <h3>المنتجات والخدمات</h3>
+                </div>
+                <div class="card-body">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>المنتج</th>
+                                <th>الفئة</th>
+                                <th>السعر</th>
+                                <th>الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- MARKETING -->
+        <div id="marketing-tab" class="tab-content">
+            <div class="card-box">
+                <div class="card-header">
+                    <h3>الحملات التسويقية</h3>
+                </div>
+                <div class="card-body">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>الحملة</th>
+                                <th>القناة</th>
+                                <th>الميزانية</th>
+                                <th>الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody id="marketingTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODALS -->
+    <div class="modal-backdrop" id="clientModal">
+        <div class="modal">
+            <h3>إضافة عميل جديد</h3>
+            <form onsubmit="handleForm(event, 'clients')">
+                <div class="form-group"><label>الاسم</label><input type="text" name="name" class="form-control" required></div>
+                <div class="form-group"><label>الشركة</label><input type="text" name="company" class="form-control" required></div>
+                <div class="form-group"><label>الإجمالي</label><input type="number" name="total" class="form-control" value="0"></div>
+                <div class="form-group"><label>المدفوع</label><input type="number" name="paid" class="form-control" value="0"></div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-danger" onclick="closeModal('clientModal')">إلغاء</button>
+                    <button type="submit" class="btn btn-primary">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="supplierModal">
+        <div class="modal">
+            <h3>إضافة مورد جديد</h3>
+            <form onsubmit="handleForm(event, 'suppliers')">
+                <div class="form-group"><label>المورد</label><input type="text" name="name" class="form-control" required></div>
+                <div class="form-group"><label>الشركة</label><input type="text" name="company" class="form-control" required></div>
+                <div class="form-group"><label>المعاملات</label><input type="number" name="total" class="form-control" value="0"></div>
+                <div class="form-group"><label>المسدد</label><input type="number" name="paid" class="form-control" value="0"></div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-danger" onclick="closeModal('supplierModal')">إلغاء</button>
+                    <button type="submit" class="btn btn-primary">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="deptModal">
+        <div class="modal">
+            <h3>إضافة قسم جديد</h3>
+            <form onsubmit="handleForm(event, 'departments')">
+                <div class="form-group"><label>القسم</label><input type="text" name="name" class="form-control" required></div>
+                <div class="form-group"><label>المدير</label><input type="text" name="manager" class="form-control" required></div>
+                <div class="form-group"><label>الموظفين</label><input type="number" name="staff" class="form-control" value="0"></div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-danger" onclick="closeModal('deptModal')">إلغاء</button>
+                    <button type="submit" class="btn btn-primary">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let data = {
+            clients: [
+                { id: 1, name: 'مجموعة الفطيم', company: 'الفطيم', total: 1250000, paid: 950000 },
+                { id: 2, name: 'أوراسكوم', company: 'أوراسكوم', total: 2800000, paid: 2100000 }
+            ],
+            suppliers: [
+                { id: 1, name: 'الدولية للورق', company: 'IP Egypt', total: 450000, paid: 300000 }
+            ],
+            departments: [
+                { id: 1, name: 'التصميم', manager: 'م. أحمد', staff: 12 },
+                { id: 2, name: 'الإنتاج', manager: 'م. يحيى', staff: 24 }
+            ],
+            products: [
+                { id: 1, name: 'هوية بصرية', category: 'تصميم', price: 45000, status: 'نشط' }
+            ],
+            marketing: [
+                { id: 1, name: 'حملة رمضان', channel: 'سوشيال', budget: 150000, status: 'نشطة' }
+            ]
+        };
+
+        function save() { localStorage.setItem('albahrawi_data', JSON.stringify(data)); }
+        function load() {
+            const saved = localStorage.getItem('albahrawi_data');
+            if (saved) data = JSON.parse(saved);
+        }
+
+        window.switchTab = function(tab, el) {
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(tab + '-tab').classList.add('active');
+            
+            const titles = { dashboard: 'لوحة التحكم', clients: 'إدارة العملاء', suppliers: 'إدارة الموردين', departments: 'الأقسام الإدارية', products: 'المنتجات والخدمات', marketing: 'التسويق الذكي' };
+            document.getElementById('pageTitle').textContent = titles[tab];
+            render(tab);
+        };
+
+        function render(tab) {
+            if (tab === 'dashboard') {
+                document.getElementById('dash-revenue').textContent = new Intl.NumberFormat('ar-EG').format(data.clients.reduce((s,c)=>s+c.total,0)) + ' ج.م';
+                document.getElementById('dash-clients').textContent = data.clients.length;
+                document.getElementById('dash-suppliers').textContent = data.suppliers.length;
+            }
+            if (tab === 'clients') {
+                document.getElementById('clientsTableBody').innerHTML = data.clients.map(c => `
+                    <tr>
+                        <td>${c.name}</td><td>${c.company}</td><td>${c.total}</td><td>${c.paid}</td><td>${c.total - c.paid}</td>
+                        <td><button class="btn btn-danger" onclick="deleteItem('clients', ${c.id})">حذف</button></td>
+                    </tr>
+                `).join('');
+            }
+            if (tab === 'suppliers') {
+                document.getElementById('suppliersTableBody').innerHTML = data.suppliers.map(s => `
+                    <tr>
+                        <td>${s.name}</td><td>${s.company}</td><td>${s.total}</td><td>${s.paid}</td><td>${s.total - s.paid}</td>
+                        <td><button class="btn btn-danger" onclick="deleteItem('suppliers', ${s.id})">حذف</button></td>
+                    </tr>
+                `).join('');
+            }
+            if (tab === 'departments') {
+                document.getElementById('departmentsTableBody').innerHTML = data.departments.map(d => `
+                    <tr><td>${d.name}</td><td>${d.manager}</td><td>${d.staff}</td><td><button class="btn btn-danger" onclick="deleteItem('departments', ${d.id})">حذف</button></td></tr>
+                `).join('');
+            }
+            if (tab === 'products') {
+                document.getElementById('productsTableBody').innerHTML = data.products.map(p => `
+                    <tr><td>${p.name}</td><td>${p.category}</td><td>${p.price}</td><td>${p.status}</td></tr>
+                `).join('');
+            }
+            if (tab === 'marketing') {
+                document.getElementById('marketingTableBody').innerHTML = data.marketing.map(m => `
+                    <tr><td>${m.name}</td><td>${m.channel}</td><td>${m.budget}</td><td>${m.status}</td></tr>
+                `).join('');
+            }
+        }
+
+        window.openModal = id => document.getElementById(id).classList.add('active');
+        window.closeModal = id => document.getElementById(id).classList.remove('active');
+
+        window.handleForm = (e, type) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const newItem = { id: Date.now() };
+            formData.forEach((value, key) => newItem[key] = isNaN(value) ? value : Number(value));
+            data[type].push(newItem);
+            save();
+            render(type);
+            e.target.reset();
+            closeModal(type.slice(0,-1) + 'Modal');
+        };
+
+        window.deleteItem = (type, id) => {
+            if (confirm('هل أنت متأكد؟')) {
+                data[type] = data[type].filter(i => i.id !== id);
+                save();
+                render(type);
+            }
+        };
+
+        window.onload = () => {
+            load();
+            document.getElementById('currentDate').textContent = new Date().toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            render('dashboard');
+        };
+    </script>
+</body>
+</html>

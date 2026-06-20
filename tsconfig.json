@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "ES2021",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "isolatedModules": false,
+    "verbatimModuleSyntax": false,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictFunctionTypes": false,
+    "strictBindCallApply": false,
+    "strictPropertyInitialization": false,
+    "noImplicitThis": false,
+    "alwaysStrict": false,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": false,
+    "forceConsistentCasingInFileNames": false,
+    "composite": false,
+    "incremental": false,
+    "baseUrl": ".",
+    "paths": {
+      "@albahrawy/database": ["./packages/database"],
+      "@albahrawy/shared": ["./packages/shared"],
+      "@albahrawy/config": ["./packages/config"],
+      "@albahrawy/types": ["./packages/types"],
+      "@albahrawy/ui": ["./packages/ui"],
+      "@/database": ["./packages/database"],
+      "@/types": ["./packages/types"],
+      "@/config": ["./packages/config"],
+      "@/shared": ["./packages/shared"]
+    }
+  },
+  "exclude": ["node_modules", "legacy", "**/dist", "**/build"]
+}

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تواصل معنا | ELBA 7RAWY</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <style>
+        body { font-family: 'Cairo', sans-serif; background-color: #0a0a0a; color: white; }
+        .page-header { background: linear-gradient(rgba(10, 10, 10, 0.9), rgba(10, 10, 10, 0.9)), url('https://images.unsplash.com/photo-1534536281715-e28d76689b4d?q=80&w=2070&auto=format&fit=crop'); background-size: cover; background-position: center; }
+        [x-cloak] { display: none !important; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { primary: '#0a0a0a', secondary: '#FFD700', accent: '#1a1a1a' }
+                }
+            }
+        }
+    </script>
+</head>
+<body x-data="{ mobileMenuOpen: false, formStatus: 'idle', aiAnalyzing: false, ...siteData }" class="bg-primary text-white">
+
+    <!-- Header (Shared) -->
+    <header class="fixed w-full z-50 bg-black/80 backdrop-blur-lg border-b border-white/5">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-black text-secondary tracking-tighter">ELBA 7RAWY</a>
+            <nav class="hidden lg:flex items-center space-x-reverse space-x-8 font-bold text-sm">
+                <a href="index.html" class="hover:text-secondary transition">الرئيسية</a>
+                <a href="services.html" class="hover:text-secondary transition">خدماتنا</a>
+                <a href="portfolio.html" class="hover:text-secondary transition">المعرض</a>
+                <a href="contact.html" class="text-secondary">تواصل معنا</a>
+            </nav>
+            <button @click="mobileMenuOpen = !mobileMenuOpen" class="lg:hidden text-2xl text-secondary">
+                <i class="fas" :class="mobileMenuOpen ? 'fa-times' : 'fa-bars'"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header pt-48 pb-32 text-center relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full bg-black/50"></div>
+        <div class="container mx-auto px-4 relative z-10">
+            <h1 class="text-5xl md:text-7xl font-black mb-6 glow" data-aos="fade-down">تواصل معنا</h1>
+            <div class="h-1.5 w-24 bg-secondary mx-auto"></div>
+        </div>
+    </section>
+
+    <!-- Contact Content -->
+    <section class="py-32">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-16">
+                
+                <!-- Contact Info -->
+                <div class="lg:col-span-1 space-y-10" data-aos="fade-left">
+                    <div class="bg-accent p-12 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden">
+                        <div class="absolute -top-20 -right-20 w-40 h-40 bg-secondary/5 rounded-full blur-[100px]"></div>
+                        <h2 class="text-3xl font-black text-secondary mb-10">معلوماتنا</h2>
+                        
+                        <div class="space-y-10">
+                            <div class="flex items-start">
+                                <div class="w-14 h-14 bg-black/40 rounded-2xl flex items-center justify-center text-secondary text-2xl shrink-0 border border-white/5">
+                                    <i class="fas fa-phone-alt"></i>
+                                </div>
+                                <div class="mr-6">
+                                    <h4 class="font-bold text-gray-500 text-sm mb-1 uppercase tracking-widest">الهاتف</h4>
+                                    <p class="text-2xl font-black text-white" dir="ltr" x-text="phone"></p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start">
+                                <div class="w-14 h-14 bg-black/40 rounded-2xl flex items-center justify-center text-secondary text-2xl shrink-0 border border-white/5">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div class="mr-6">
+                                    <h4 class="font-bold text-gray-500 text-sm mb-1 uppercase tracking-widest">البريد</h4>
+                                    <p class="text-xl font-bold text-white" x-text="email"></p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start">
+                                <div class="w-14 h-14 bg-black/40 rounded-2xl flex items-center justify-center text-secondary text-2xl shrink-0 border border-white/5">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <div class="mr-6">
+                                    <h4 class="font-bold text-gray-500 text-sm mb-1 uppercase tracking-widest">المقر</h4>
+                                    <p class="text-xl font-bold text-white" x-text="address"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-16 pt-10 border-t border-white/5">
+                            <h4 class="font-bold text-gray-500 mb-8 uppercase tracking-widest">تابعنا</h4>
+                            <div class="flex space-x-reverse space-x-4">
+                                <a href="#" class="w-12 h-12 bg-black rounded-xl flex items-center justify-center hover:bg-secondary hover:text-black transition duration-500"><i class="fab fa-facebook-f"></i></a>
+                                <a href="#" class="w-12 h-12 bg-black rounded-xl flex items-center justify-center hover:bg-secondary hover:text-black transition duration-500"><i class="fab fa-instagram"></i></a>
+                                <a href="#" class="w-12 h-12 bg-black rounded-xl flex items-center justify-center hover:bg-secondary hover:text-black transition duration-500"><i class="fab fa-tiktok"></i></a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-accent h-80 rounded-[3rem] overflow-hidden border border-white/5 shadow-2xl relative group">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3453.078263566115!2d31.2357!3d30.0444!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzDCsDAyJzQwLjAiTiAzMcKwMTQnMDguNSJF!5e0!3m2!1sen!2seg!4v1623845000000!5m2!1sen!2seg" width="100%" height="100%" style="border:0; filter: grayscale(1) invert(0.9);" allowfullscreen="" loading="lazy"></iframe>
+                        <div class="absolute inset-0 bg-secondary/10 pointer-events-none group-hover:bg-transparent transition duration-500"></div>
+                    </div>
+                </div>
+
+                <!-- Contact Form -->
+                <div class="lg:col-span-2" data-aos="fade-right">
+                    <div class="bg-accent p-12 md:p-16 rounded-[3.5rem] border border-white/5 shadow-2xl relative overflow-hidden">
+                        <!-- AI Analysis Overlay -->
+                        <div x-show="aiAnalyzing" x-cloak class="absolute inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-10 text-center">
+                            <div class="w-24 h-24 mb-8 relative">
+                                <div class="absolute inset-0 border-4 border-secondary/20 rounded-full"></div>
+                                <div class="absolute inset-0 border-4 border-t-secondary rounded-full animate-spin"></div>
+                                <i class="fas fa-brain text-secondary text-3xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></i>
+                            </div>
+                            <h3 class="text-2xl font-black text-secondary mb-4">الذكاء الاصطناعي يحلل طلبك...</h3>
+                            <p class="text-gray-400 max-w-sm">نقوم بمعالجة بياناتك لتوجيه طلبك للقسم المختص وتقديم أفضل عرض سعر مخصص.</p>
+                        </div>
+
+                        <h2 class="text-4xl font-black mb-6">ابدأ مشروعك الآن</h2>
+                        <p class="text-gray-400 text-lg mb-12">املأ البيانات وسيقوم نظامنا الذكي بتوجيه طلبك للفريق المناسب فوراً.</p>
+
+                        <form @submit.prevent="aiAnalyzing = true; setTimeout(() => { aiAnalyzing = false; formStatus = 'success' }, 3000)" class="space-y-8">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-500 mb-4 uppercase tracking-widest">الاسم بالكامل</label>
+                                    <input type="text" required class="w-full bg-black/40 border border-white/5 rounded-2xl px-6 py-5 focus:outline-none focus:border-secondary transition text-white" placeholder="مثال: محمد البحراوي">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-500 mb-4 uppercase tracking-widest">رقم الهاتف</label>
+                                    <input type="tel" required class="w-full bg-black/40 border border-white/5 rounded-2xl px-6 py-5 focus:outline-none focus:border-secondary transition text-white" placeholder="01XXXXXXXXX">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-500 mb-4 uppercase tracking-widest">البريد الإلكتروني</label>
+                                <input type="email" required class="w-full bg-black/40 border border-white/5 rounded-2xl px-6 py-5 focus:outline-none focus:border-secondary transition text-white" placeholder="name@example.com">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-500 mb-4 uppercase tracking-widest">نوع الخدمة المطلوبة</label>
+                                <select class="w-full bg-black/40 border border-white/5 rounded-2xl px-6 py-5 focus:outline-none focus:border-secondary transition text-white appearance-none">
+                                    <option class="bg-accent">استشارة تسويقية شاملة (توصية AI)</option>
+                                    <option class="bg-accent">تصميم هوية بصرية</option>
+                                    <option class="bg-accent">إدارة حملات إعلانية</option>
+                                    <option class="bg-accent">إنتاج فيديو وموشن جرافيك</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-500 mb-4 uppercase tracking-widest">تفاصيل المشروع</label>
+                                <textarea rows="6" required class="w-full bg-black/40 border border-white/5 rounded-2xl px-6 py-5 focus:outline-none focus:border-secondary transition text-white" placeholder="أخبرنا عن أهدافك..."></textarea>
+                            </div>
+
+                            <button type="submit" 
+                                    :disabled="formStatus === 'success'"
+                                    class="w-full bg-secondary text-black font-black py-6 rounded-2xl text-xl hover:scale-105 transition shadow-2xl shadow-secondary/20 flex items-center justify-center group">
+                                <span x-show="formStatus === 'idle'">إرسال الطلب الذكي <i class="fas fa-magic mr-4 group-hover:rotate-12 transition"></i></span>
+                                <span x-show="formStatus === 'success'"><i class="fas fa-check-circle ml-4"></i> تم الإرسال والتحليل بنجاح!</span>
+                            </button>
+                            
+                            <p x-show="formStatus === 'success'" class="text-secondary font-black text-center mt-6 text-lg animate-pulse" x-transition>شكرًا لك! سيقوم الذكاء الاصطناعي بتوليد عرض سعر أولي وإرساله لهاتفك قريباً.</p>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-black border-t border-white/5 py-10 text-center">
+        <p class="text-gray-500 text-sm">&copy; 2026 ELBA 7RAWY. جميع الحقوق محفوظة.</p>
+    </footer>
+
+    <script src="data.js"></script>
+    <script>AOS.init({ duration: 1000, once: true });</script>
+</body>
+</html>

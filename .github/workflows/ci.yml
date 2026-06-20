@@ -1,0 +1,45 @@
+name: "CI - ALBAHRAWY OS"
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    name: "Build and Validate"
+
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+
+      - name: "Setup Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
+
+      - name: "Install dependencies"
+        run: npm ci
+
+      - name: "Run Turborepo build"
+        run: npm run build
+        env:
+          NODE_ENV: "test"
+          # Mock all necessary env vars to let TypeScript compile and Next.js build pass
+          DATABASE_URL: "postgresql://test:test@localhost:5432/test?schema=public"
+          REDIS_URL: "redis://localhost:6379"
+          JWT_SECRET: "this-is-a-test-secret-key-for-ci-only-1234567890"
+          JWT_REFRESH_SECRET: "this-is-another-test-secret-key-for-ci-only-0987654321"
+          NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+          NEXT_PUBLIC_API_URL: "http://localhost:3001"
+
+      - name: "Run ESLint"
+        run: npm run lint
+
+      - name: "Format Check with Prettier"
+        run: npx prettier --check "**/*.{ts,tsx,md}"

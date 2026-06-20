@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تفاصيل المنتج - البحراوي للدعاية والاعلان</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <style>
+        body { font-family: 'Cairo', sans-serif; background-color: #0a0a0a; color: #fff; }
+        
+        /* Focus styles for accessibility */
+        *:focus-visible {
+            outline: 3px solid #FFD700;
+            outline-offset: 3px;
+        }
+        
+        /* Light mode styles */
+        .light-mode body, .light-mode {
+            background-color: #f5f5f5 !important;
+            color: #1a1a1a !important;
+        }
+        .light-mode .bg-accent, .light-mode.bg-accent {
+            background-color: #ffffff !important;
+            border-color: #e5e7eb !important;
+        }
+        .light-mode .text-gray-400, .light-mode.text-gray-400 {
+            color: #6b7280 !important;
+        }
+        .light-mode .bg-primary, .light-mode.bg-primary {
+            background-color: #ffffff !important;
+        }
+        
+        /* Progress line animation */
+        .progress-line {
+            transition: width 0.5s ease-in-out;
+        }
+        /* Logo Glow Effect */
+        .logo-glow {
+            filter: brightness(0) invert(1) saturate(0) !important;
+            transition: all 0.3s ease;
+        }
+        .logo-glow:hover {
+            transform: scale(1.05);
+            filter: brightness(0) invert(1) saturate(0) !important;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: { colors: { primary: '#0a0a0a', secondary: '#FFD700', accent: '#121212' } }
+            }
+        }
+    </script>
+</head>
+<body x-data="productPage()" x-init="init()" :class="{ 'light-mode': isLightMode }">
+    <!-- Header -->
+    <header class="fixed w-full z-50 bg-primary/90 backdrop-blur-lg border-b border-white/5">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <img src="https://i.postimg.cc/rp3k0Sh7/albhrawy1.png" alt="شعار البحراوي للدعاية والإعلان" class="h-16 w-auto logo-glow">
+                <div class="text-right flex flex-col items-center">
+                    <h1 class="text-2xl md:text-3xl font-black tracking-tight leading-none flex flex-row gap-2" dir="ltr">
+                        <span class="text-white">ELBA</span> <span class="text-secondary">7RAWY</span>
+                    </h1>
+                    <div class="w-full flex flex-col items-center mt-0.5" dir="ltr">
+                        <p class="text-white text-[10px] md:text-xs font-bold tracking-[0.2em] leading-none">ADVERTISING</p>
+                        <div class="h-[1px] w-12 md:w-16 bg-secondary rounded-full -mt-0.5"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <!-- Theme Toggle -->
+                <button @click="toggleTheme()" class="bg-black/50 border border-white/20 p-3 rounded-xl hover:border-secondary transition" :aria-label="isLightMode ? 'الوضع الداكن' : 'الوضع الفاتح'">
+                    <i :class="isLightMode ? 'fas fa-moon' : 'fas fa-sun'" class="text-secondary"></i>
+                </button>
+                <a href="shop.html" class="bg-accent border border-white/20 text-white px-6 py-3 rounded-xl font-bold flex items-center hover:bg-white/10 transition">
+                    <i class="fas fa-arrow-right mr-2"></i> العودة للمتجر
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Order Progress -->
+    <section class="pt-32 pb-8 bg-black">
+        <div class="container mx-auto px-6">
+            <div class="max-w-3xl mx-auto">
+                <div class="flex items-center justify-center gap-4">
+                    <div :class="orderStep >= 1 ? 'bg-secondary text-black ring-4 ring-secondary/20' : 'bg-black/50 border border-white/20'" class="w-12 h-12 rounded-full flex items-center justify-center font-black transition-all">1</div>
+                    <div :class="orderStep >= 2 ? 'bg-secondary' : 'bg-white/10'" class="w-16 h-1 progress-line"></div>
+                    <div :class="orderStep >= 2 ? 'bg-secondary text-black ring-4 ring-secondary/20' : 'bg-black/50 border border-white/20'" class="w-12 h-12 rounded-full flex items-center justify-center font-black transition-all">2</div>
+                    <div :class="orderStep >= 3 ? 'bg-secondary' : 'bg-white/10'" class="w-16 h-1 progress-line"></div>
+                    <div :class="orderStep >= 3 ? 'bg-secondary text-black ring-4 ring-secondary/20' : 'bg-black/50 border border-white/20'" class="w-12 h-12 rounded-full flex items-center justify-center font-black transition-all">3</div>
+                </div>
+                <div class="flex justify-between mt-4 text-xs md:text-sm">
+                    <span class="w-1/3 text-center font-bold" :class="orderStep >= 1 ? 'text-secondary' : 'text-gray-400'">اختيار المنتج</span>
+                    <span class="w-1/3 text-center font-bold" :class="orderStep >= 2 ? 'text-secondary' : 'text-gray-400'">تحديد التفاصيل</span>
+                    <span class="w-1/3 text-center font-bold" :class="orderStep >= 3 ? 'text-secondary' : 'text-gray-400'">تأكيد الطلب</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="pb-24">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+                <!-- Product Image -->
+                <div class="lg:sticky lg:top-32">
+                    <div class="rounded-3xl overflow-hidden border border-white/10">
+                        <img :src="product.image" :alt="product.name" class="w-full h-[400px] md:h-[500px] object-cover" loading="lazy" width="500" height="500">
+                    </div>
+                </div>
+
+                <!-- Product Details & Options -->
+                <div class="bg-accent rounded-3xl border border-white/10 p-8">
+                    <div x-show="product.badge" class="inline-block bg-secondary text-black px-4 py-1 rounded-full font-bold text-sm mb-4" x-text="product.badge"></div>
+                    <h1 class="text-4xl font-black mb-4" x-text="product.name"></h1>
+                    <p class="text-gray-400 text-lg mb-8" x-text="product.description"></p>
+                    
+                    <div class="flex items-baseline gap-2 mb-8">
+                        <span class="text-gray-400">ج.م</span>
+                        <span class="text-5xl font-black text-secondary" x-text="product.price"></span>
+                    </div>
+
+                    <!-- Form -->
+                    <form @submit.prevent="submitOrder()" class="space-y-6">
+                        <!-- Size Selection -->
+                        <div>
+                            <label class="block text-sm font-bold text-gray-400 mb-3">اختر طريقة تحديد المقاس <span class="text-red-500">*</span></label>
+                            <div class="space-y-3">
+                                <label class="flex items-center gap-4 cursor-pointer bg-black/50 border border-white/10 p-4 rounded-xl hover:border-secondary/50 transition">
+                                    <input type="radio" name="sizeOption" value="custom" x-model="sizeOption" class="w-5 h-5 text-secondary accent-yellow-400" required>
+                                    <div>
+                                        <h4 class="font-bold">أحدد المقاس بنفسى</h4>
+                                        <p class="text-gray-400 text-sm">أكتب المقاس بالسمتر أو بالبكسل</p>
+                                    </div>
+                                </label>
+                                <label class="flex items-center gap-4 cursor-pointer bg-black/50 border border-white/10 p-4 rounded-xl hover:border-secondary/50 transition">
+                                    <input type="radio" name="sizeOption" value="measureService" x-model="sizeOption" class="w-5 h-5 text-secondary accent-yellow-400">
+                                    <div>
+                                        <h4 class="font-bold">معاينة المقاس من عندكم</h4>
+                                        <p class="text-gray-400 text-sm">سيتم تحديد السعر بعد المعاينة</p>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Custom Size Input -->
+                        <div x-show="sizeOption === 'custom'" class="space-y-3">
+                            <label class="block text-sm font-bold text-gray-400 mb-3" for="custom-size">اكتب المقاس (مثال: 100x50 سم) <span class="text-red-500">*</span></label>
+                            <input 
+                                type="text" 
+                                id="custom-size" 
+                                x-model="customSize" 
+                                placeholder="مثال: 100x50 سم أو 100x50 بكسل"
+                                class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-secondary transition"
+                                required
+                            >
+                        </div>
+
+                        <!-- Material Selection -->
+                        <div x-show="product.materials && product.materials.length > 0" x-show="sizeOption === 'custom'">
+                            <label class="block text-sm font-bold text-gray-400 mb-3" for="material-select">اختر المادة <span class="text-red-500">*</span></label>
+                            <div id="material-select" class="flex flex-wrap gap-3" role="radiogroup">
+                                <template x-for="(material, index) in product.materials" :key="index">
+                                    <button 
+                                        type="button"
+                                        @click="selectedMaterial = material"
+                                        :class="selectedMaterial === material ? 'bg-secondary text-black border-secondary' : 'bg-black text-white border-white/20 hover:border-white/50'"
+                                        class="px-6 py-3 rounded-xl font-bold border transition"
+                                        x-text="material"
+                                        :aria-pressed="selectedMaterial === material"
+                                    ></button>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Color Selection -->
+                        <div x-show="product.colors && product.colors.length > 0" x-show="sizeOption === 'custom'">
+                            <label class="block text-sm font-bold text-gray-400 mb-3" for="color-select">اختر اللون <span class="text-red-500">*</span></label>
+                            <div id="color-select" class="flex flex-wrap gap-3" role="radiogroup">
+                                <template x-for="(color, index) in product.colors" :key="index">
+                                    <button 
+                                        type="button"
+                                        @click="selectedColor = color"
+                                        :class="selectedColor === color ? 'bg-secondary text-black border-secondary' : 'bg-black text-white border-white/20 hover:border-white/50'"
+                                        class="px-6 py-3 rounded-xl font-bold border transition"
+                                        x-text="color"
+                                        :aria-pressed="selectedColor === color"
+                                    ></button>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Quantity -->
+                        <div x-show="sizeOption === 'custom'">
+                            <label class="block text-sm font-bold text-gray-400 mb-3" for="quantity-input">الكمية</label>
+                            <div id="quantity-input" class="flex items-center gap-4 bg-black/50 border border-white/10 rounded-xl p-3 w-fit">
+                                <button @click="if(quantity > 1) quantity--" class="w-12 h-12 rounded-lg bg-accent hover:bg-secondary hover:text-black transition font-bold text-xl" aria-label="تقليل الكمية">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <span x-text="quantity" class="text-3xl font-black w-20 text-center" role="status" :aria-label="'الكمية المختارة: ' + quantity"></span>
+                                <button @click="quantity++" class="w-12 h-12 rounded-lg bg-accent hover:bg-secondary hover:text-black transition font-bold text-xl" aria-label="زيادة الكمية">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Design Choice -->
+                        <div>
+                            <label class="block text-sm font-bold text-gray-400 mb-3" for="design-choice">التصميم <span class="text-red-500">*</span></label>
+                            <div id="design-choice" class="space-y-3" role="radiogroup">
+                                <label class="flex items-center gap-4 cursor-pointer bg-black/50 border border-white/10 p-4 rounded-xl hover:border-secondary/50 transition">
+                                    <input type="radio" name="designChoice" value="uploadDesign" x-model="designChoice" class="w-5 h-5 text-secondary accent-yellow-400" required>
+                                    <div>
+                                        <h4 class="font-bold">ارفع تصميمي الخاص</h4>
+                                        <p class="text-gray-400 text-sm">قم بتحميل التصميم الخاص بك</p>
+                                    </div>
+                                </label>
+                                <label class="flex items-center gap-4 cursor-pointer bg-black/50 border border-white/10 p-4 rounded-xl hover:border-secondary/50 transition">
+                                    <input type="radio" name="designChoice" value="designService" x-model="designChoice" class="w-5 h-5 text-secondary accent-yellow-400">
+                                    <div>
+                                        <h4 class="font-bold">نصمم لك من البداية</h4>
+                                        <p class="text-gray-400 text-sm">فريقنا سيقوم بتصميمك الخاص</p>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Design Upload -->
+                        <div x-show="designChoice === 'uploadDesign'" class="space-y-3">
+                            <label class="block text-sm font-bold text-gray-400 mb-3" for="design-upload">ارفع تصميمك</label>
+                            <input 
+                                type="file" 
+                                id="design-upload" 
+                                @change="handleFileUpload"
+                                accept="image/*,.pdf,.ai,.psd"
+                                class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-secondary transition file:bg-secondary file:text-black file:border-none file:rounded-lg file:px-4 file:py-2 file:mr-4 file:cursor-pointer file:font-bold"
+                            >
+                            <p x-show="uploadedFileName" class="text-green-400 text-sm">
+                                <i class="fas fa-check-circle mr-2"></i>
+                                تم رفع الملف: <span x-text="uploadedFileName"></span>
+                            </p>
+                        </div>
+
+                        <!-- Notes -->
+                        <div>
+                            <label class="block text-sm font-bold text-gray-400 mb-3" for="notes-input">ملاحظات إضافية</label>
+                            <textarea 
+                                id="notes-input"
+                                x-model="notes"
+                                rows="4"
+                                class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-secondary transition resize-none"
+                                placeholder="اكتب أي ملاحظات أو تفاصيل إضافية هنا..."
+                                aria-label="ملاحظات إضافية"
+                            ></textarea>
+                        </div>
+
+                        <!-- Error Message -->
+                        <p x-show="errorMessage" class="text-red-500 font-bold text-sm text-center" x-text="errorMessage" role="alert"></p>
+
+                        <!-- Measure Service Notice -->
+                        <div x-show="sizeOption === 'measureService'" class="border border-yellow-500/30 bg-yellow-500/10 rounded-xl p-4 text-center">
+                            <div class="text-yellow-400">
+                                <i class="fas fa-info-circle text-2xl mb-2"></i>
+                            </div>
+                            <p class="font-bold text-lg mb-2">سيتم تحديد السعر بعد المعاينه</p>
+                            <p class="text-gray-400 text-sm">سيقوم فريقنا بالتواصل معك لتحديد المقاس والسعر المناسب</p>
+                        </div>
+
+                        <!-- Total & Submit -->
+                        <div class="border-t border-white/10 pt-6 mt-6">
+                            <div x-show="sizeOption === 'custom'" class="flex items-center justify-between mb-8">
+                                <span class="text-xl font-bold">الإجمالي:</span>
+                                <div class="flex items-baseline gap-2">
+                                    <span class="text-gray-400">ج.م</span>
+                                    <span class="text-5xl font-black text-secondary" x-text="totalPrice" role="status" :aria-label="'السعر الإجمالي: ' + totalPrice + ' جنيه'"></span>
+                                </div>
+                            </div>
+                            
+                            <button 
+                                type="submit"
+                                class="w-full bg-secondary text-black py-4 rounded-xl font-black text-xl hover:scale-105 transition shadow-lg shadow-secondary/20 flex items-center justify-center gap-2"
+                                aria-label="تأكيد الطلب عبر الواتساب"
+                            >
+                                <i class="fab fa-whatsapp text-2xl"></i>
+                                تأكيد الطلب عبر الواتساب
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-black border-t border-white/5 py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p class="text-gray-500 text-sm">&copy; 2026 البحراوي للدعاية والاعلان والحفر بالليزر. جميع الحقوق محفوظة.</p>
+        </div>
+    </footer>
+
+    <script src="data.js"></script>
+    <script>
+        function productPage() {
+            const appData = loadSiteData();
+            const savedProduct = localStorage.getItem('selectedProduct');
+            const initialProduct = savedProduct ? JSON.parse(savedProduct) : (appData.products[0] || {});
+
+            return {
+                ...appData,
+                product: initialProduct,
+                selectedSize: null,
+                selectedMaterial: null,
+                selectedColor: null,
+                quantity: 1,
+                designChoice: '',
+                notes: '',
+                errorMessage: '',
+                isLightMode: false,
+                orderStep: 1,
+                sizeOption: 'custom',
+                customSize: '',
+                selectedPreDesign: null,
+                uploadedFileName: '',
+
+                init() {
+                    // Load order step
+                    const savedStep = localStorage.getItem('albahrawy_order_step');
+                    if (savedStep) {
+                        this.orderStep = parseInt(savedStep);
+                    } else {
+                        this.orderStep = 1;
+                    }
+                    
+                    // Make sure we're on step 2 when on this page
+                    if (this.orderStep < 2) {
+                        this.orderStep = 2;
+                        localStorage.setItem('albahrawy_order_step', '2');
+                    }
+                    
+                    // Add to viewed products
+                    this.addToViewed();
+                    
+                    // Add default values
+                    if (this.product.sizes && this.product.sizes.length > 0) {
+                        this.selectedSize = this.product.sizes[0];
+                    }
+                    if (this.product.materials && this.product.materials.length > 0) {
+                        this.selectedMaterial = this.product.materials[0];
+                    }
+                    if (this.product.colors && this.product.colors.length > 0) {
+                        this.selectedColor = this.product.colors[0];
+                    }
+                    
+                    // Load theme
+                    const savedTheme = localStorage.getItem('albahrawy_theme');
+                    if (savedTheme === 'light') {
+                        this.isLightMode = true;
+                    }
+                },
+
+                handleFileUpload(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        this.uploadedFileName = file.name;
+                    }
+                },
+                
+                toggleTheme() {
+                    this.isLightMode = !this.isLightMode;
+                    localStorage.setItem('albahrawy_theme', this.isLightMode ? 'light' : 'dark');
+                },
+                
+                addToViewed() {
+                    const savedViewed = localStorage.getItem('albahrawy_viewed');
+                    let viewed = savedViewed ? JSON.parse(savedViewed) : [];
+                    if (!viewed.find(p => p.id === this.product.id)) {
+                        viewed.unshift(this.product);
+                        if (viewed.length > 10) {
+                            viewed.pop();
+                        }
+                        localStorage.setItem('albahrawy_viewed', JSON.stringify(viewed));
+                    }
+                },
+
+                get totalPrice() {
+                    return this.product.price * this.quantity;
+                },
+
+                validate() {
+                    this.errorMessage = '';
+
+                    // Check size option
+                    if (!this.sizeOption) {
+                        this.errorMessage = 'الرجاء اختيار طريقة تحديد المقاس';
+                        return false;
+                    }
+
+                    // Check custom size input
+                    if (this.sizeOption === 'custom' && !this.customSize) {
+                        this.errorMessage = 'الرجاء كتابة المقاس';
+                        return false;
+                    }
+
+                    // Check material if required
+                    if (this.sizeOption === 'custom' && this.product.materials && this.product.materials.length > 0 && !this.selectedMaterial) {
+                        this.errorMessage = 'الرجاء اختيار المادة';
+                        return false;
+                    }
+
+                    // Check color if required
+                    if (this.sizeOption === 'custom' && this.product.colors && this.product.colors.length > 0 && !this.selectedColor) {
+                        this.errorMessage = 'الرجاء اختيار اللون';
+                        return false;
+                    }
+
+                    // Check design choice
+                    if (!this.designChoice) {
+                        this.errorMessage = 'الرجاء اختيار خيار التصميم';
+                        return false;
+                    }
+
+
+
+                    return true;
+                },
+
+                submitOrder() {
+                    if (!this.validate()) {
+                        return;
+                    }
+
+                    // Update order step to 3 before submitting
+                    this.orderStep = 3;
+                    localStorage.setItem('albahrawy_order_step', '3');
+                    
+                    // Build WhatsApp message
+                    let message = `*طلب جديد من موقع البحراوي*\n\n`;
+                    message += `*المنتج:* ${this.product.name}\n`;
+                    
+                    // Size info
+                    if (this.sizeOption === 'custom') {
+                        message += `*المقاس:* ${this.customSize}\n`;
+                        message += `*الكمية:* ${this.quantity}\n`;
+                        message += `*السعر:* ${this.product.price} ج.م\n`;
+                        if (this.selectedMaterial) message += `*المادة:* ${this.selectedMaterial}\n`;
+                        if (this.selectedColor) message += `*اللون:* ${this.selectedColor}\n`;
+                    } else {
+                        message += `*المقاس:* معاينة من عندكم\n`;
+                        message += `*ملاحظة:* سيتم تحديد السعر بعد المعاينة\n`;
+                    }
+                    
+                    // Design info
+                    if (this.designChoice === 'uploadDesign') {
+                        message += `*التصميم:* العميل بيحمل تصميمه الخاص\n`;
+                        if (this.uploadedFileName) message += `*اسم الملف:* ${this.uploadedFileName}\n`;
+                    } else {
+                        message += `*التصميم:* نصمم له من البداية\n`;
+                    }
+                    
+                    if (this.notes) {
+                        message += `\n*ملاحظات:* ${this.notes}\n`;
+                    }
+                    
+                    // Total only for custom size
+                    if (this.sizeOption === 'custom') {
+                        message += `\n*الإجمالي:* ${this.totalPrice} ج.م`;
+                    } else {
+                        message += `\n*ملاحظة:* السعر سيتم تحديده بعد التواصل مع العميل`;
+                    }
+
+                    const encodedMessage = encodeURIComponent(message);
+                    const whatsappURL = `https://wa.me/201120053007?text=${encodedMessage}`;
+                    
+                    // Open WhatsApp
+                    window.open(whatsappURL, '_blank');
+                }
+            };
+        }
+    </script>
+
+    <!-- Back to Top Button -->
+    <button 
+        onclick="window.scrollTo({top: 0, behavior: 'smooth'})"
+        class="fixed bottom-6 right-6 w-14 h-14 bg-secondary text-black rounded-full flex items-center justify-center font-bold text-xl shadow-lg shadow-secondary/30 hover:scale-110 transition z-50"
+        aria-label="العودة لأعلى"
+    >
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+</body>
+</html>
