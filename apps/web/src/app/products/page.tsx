@@ -72,7 +72,7 @@ export default function Products() {
                     <span className="text-muted-foreground">ج.م / {product.pricingType === 'piece' ? 'القطعة' : product.pricingType === 'meter' ? 'المتر' : 'الحرف'}</span>
                     <span className="text-3xl font-black text-primary">{product.price}</span>
                   </div>
-                  <button className="btn-primary">
+                  <button onClick={() => window.location.href = `/products/${product.id}`} className="btn-primary">
                     طلب عرض
                   </button>
                 </div>
