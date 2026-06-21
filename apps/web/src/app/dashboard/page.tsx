@@ -136,6 +136,10 @@ export default function DashboardPage() {
   const [showEditCategory, setShowEditCategory] = useState<any>(null)
   const [showAddProduct, setShowAddProduct] = useState(false)
   const [showEditProduct, setShowEditProduct] = useState<any>(null)
+  const [showAddPortfolio, setShowAddPortfolio] = useState(false)
+  const [showEditPortfolio, setShowEditPortfolio] = useState<any>(null)
+  const [showAddPartner, setShowAddPartner] = useState(false)
+  const [showEditPartner, setShowEditPartner] = useState<any>(null)
   const [activeMarketingEmployee, setActiveMarketingEmployee] = useState<string>('')
   const [chatMessages, setChatMessages] = useState<{ role: 'user' | 'assistant'; text: string }[]>([])
   const [chatInput, setChatInput] = useState('')
@@ -152,6 +156,10 @@ export default function DashboardPage() {
     pricingType: 'meter' | 'piece' | 'letter';
   }>>({})
   const [editProductForm, setEditProductForm] = useState<any>(null)
+  const [newPortfolio, setNewPortfolio] = useState<Partial<{ id: number; title: string; category: string; description: string; image: string }>>({})
+  const [editPortfolioForm, setEditPortfolioForm] = useState<any>(null)
+  const [newPartner, setNewPartner] = useState<Partial<{ id: number; name: string; logo: string }>>({})
+  const [editPartnerForm, setEditPartnerForm] = useState<any>(null)
 
   useEffect(() => {
     const user = localStorage.getItem('user')
@@ -952,8 +960,8 @@ export default function DashboardPage() {
               <div className="flex justify-between items-center">
                 <h3 className="text-xl font-bold text-[#FFD700]">إدارة معرض الأعمال</h3>
                 <button onClick={() => {
-                  const newItem = { id: Date.now(), title: 'عمل جديد', category: 'تصميم', description: '', image: 'https://picsum.photos/400/300' }
-                  saveSiteData({ ...siteData, portfolio: [...siteData.portfolio, newItem] })
+                  setNewPortfolio({})
+                  setShowAddPortfolio(true)
                 }} className="bg-[#FFD700] text-black px-6 py-3 rounded-2xl font-black flex items-center gap-3">
                   <Plus className="w-5 h-5" /> إضافة عمل
                 </button>
@@ -963,22 +971,24 @@ export default function DashboardPage() {
                   <div key={item.id} className="bg-[#0F0F0F] border border-white/5 rounded-[2rem] overflow-hidden group">
                     <div className="h-40 relative">
                       <img src={item.image} className="w-full h-full object-cover" />
-                      <button onClick={() => {
-                        const newPortfolio = siteData.portfolio.filter(p => p.id !== item.id)
-                        saveSiteData({ ...siteData, portfolio: newPortfolio })
-                      }} className="absolute top-4 left-4 w-10 h-10 bg-red-500/20 backdrop-blur-md text-red-500 rounded-full flex items-center justify-center hover:bg-red-500 hover:text-white transition opacity-0 group-hover:opacity-100">
-                        <Trash2 className="w-5 h-5" />
-                      </button>
+                      <div className="absolute inset-0 bg-black/70 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition">
+                        <button onClick={() => {
+                          setEditPortfolioForm(item)
+                          setShowEditPortfolio(true)
+                        }} className="w-10 h-10 bg-[#FFD700] text-black rounded-full flex items-center justify-center hover:scale-110 transition">
+                          <Edit className="w-5 h-5" />
+                        </button>
+                        <button onClick={() => {
+                          const newPortfolio = siteData.portfolio.filter(p => p.id !== item.id)
+                          saveSiteData({ ...siteData, portfolio: newPortfolio })
+                        }} className="w-10 h-10 bg-red-500 text-white rounded-full flex items-center justify-center hover:scale-110 transition">
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
                     </div>
                     <div className="p-6 space-y-2">
-                      <input value={item.title} onChange={(e) => {
-                        const newPortfolio = siteData.portfolio.map(p => p.id === item.id ? { ...p, title: e.target.value } : p)
-                        saveSiteData({ ...siteData, portfolio: newPortfolio })
-                      }} className="w-full bg-transparent font-bold focus:outline-none" />
-                      <input value={item.category} onChange={(e) => {
-                        const newPortfolio = siteData.portfolio.map(p => p.id === item.id ? { ...p, category: e.target.value } : p)
-                        saveSiteData({ ...siteData, portfolio: newPortfolio })
-                      }} className="w-full bg-transparent text-xs text-gray-500 focus:outline-none" />
+                      <h4 className="font-bold">{item.title}</h4>
+                      <p className="text-xs text-gray-500">{item.category}</p>
                     </div>
                   </div>
                 ))}
@@ -992,8 +1002,8 @@ export default function DashboardPage() {
               <div className="flex justify-between items-center">
                 <h3 className="text-xl font-bold text-[#FFD700]">إدارة شركاء النجاح</h3>
                 <button onClick={() => {
-                  const newPartner = { id: Date.now(), name: 'شريك جديد', logo: 'https://picsum.photos/200/200' }
-                  saveSiteData({ ...siteData, clients: [...siteData.clients, newPartner] })
+                  setNewPartner({})
+                  setShowAddPartner(true)
                 }} className="bg-[#FFD700] text-black px-6 py-3 rounded-2xl font-black flex items-center gap-3">
                   <Plus className="w-5 h-5" /> إضافة شريك
                 </button>
@@ -1003,17 +1013,22 @@ export default function DashboardPage() {
                   <div key={partner.id} className="bg-[#0F0F0F] border border-white/5 rounded-[2rem] p-6 flex flex-col items-center gap-4 group">
                     <div className="w-20 h-20 relative">
                       <img src={partner.logo} className="w-full h-full object-contain rounded-xl" />
-                      <button onClick={() => {
-                        const newClients = siteData.clients.filter(c => c.id !== partner.id)
-                        saveSiteData({ ...siteData, clients: newClients })
-                      }} className="absolute -top-2 -left-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="absolute inset-0 bg-black/70 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition">
+                        <button onClick={() => {
+                          setEditPartnerForm(partner)
+                          setShowEditPartner(true)
+                        }} className="w-8 h-8 bg-[#FFD700] text-black rounded-full flex items-center justify-center hover:scale-110 transition">
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => {
+                          const newClients = siteData.clients.filter(c => c.id !== partner.id)
+                          saveSiteData({ ...siteData, clients: newClients })
+                        }} className="w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:scale-110 transition">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
-                    <input value={partner.name} onChange={(e) => {
-                      const newClients = siteData.clients.map(c => c.id === partner.id ? { ...c, name: e.target.value } : c)
-                      saveSiteData({ ...siteData, clients: newClients })
-                    }} className="w-full bg-transparent text-xs text-center font-bold focus:outline-none" />
+                    <h4 className="text-center text-xs font-bold">{partner.name}</h4>
                   </div>
                 ))}
               </div>
@@ -1421,6 +1436,286 @@ export default function DashboardPage() {
                     إلغاء
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Portfolio Modal */}
+      {showAddPortfolio && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[999] p-6">
+          <div className="bg-[#0F0F0F] border border-white/10 rounded-[3rem] max-w-2xl w-full p-10 animate-in zoom-in-95 fade-in duration-300">
+            <div className="flex justify-between items-center mb-10">
+              <h3 className="text-3xl font-black text-white flex items-center gap-3">
+                <Briefcase className="text-[#FFD700]" />
+                إضافة عمل جديد
+              </h3>
+              <button onClick={() => setShowAddPortfolio(false)} className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="space-y-8">
+              <div className="space-y-3">
+                <label className="text-sm font-bold text-gray-400">عنوان العمل</label>
+                <input placeholder="مثال: تصميم شعار شركة..." value={newPortfolio.title || ''} onChange={(e) => setNewPortfolio({ ...newPortfolio, title: e.target.value })} className="w-full bg-black/60 border-2 border-white/10 rounded-2xl px-6 py-5 text-lg text-white focus:outline-none focus:border-[#FFD700] transition" />
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-sm font-bold text-gray-400">تصنيف العمل</label>
+                <input placeholder="مثال: تصميم جرافيك، طباعة، اعلانات..." value={newPortfolio.category || ''} onChange={(e) => setNewPortfolio({ ...newPortfolio, category: e.target.value })} className="w-full bg-black/60 border-2 border-white/10 rounded-2xl px-6 py-5 text-lg text-white focus:outline-none focus:border-[#FFD700] transition" />
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-sm font-bold text-gray-400">وصف العمل</label>
+                <textarea placeholder="اكتب وصفاً مفصلاً للعمل..." value={newPortfolio.description || ''} onChange={(e) => setNewPortfolio({ ...newPortfolio, description: e.target.value })} className="w-full bg-black/60 border-2 border-white/10 rounded-2xl px-6 py-5 text-lg text-white focus:outline-none focus:border-[#FFD700] transition min-h-[120px]" />
+              </div>
+
+              <div className="space-y-4">
+                <label className="text-sm font-bold text-gray-400">صورة العمل</label>
+                
+                {newPortfolio.image && (
+                  <div className="relative h-60 bg-black/40 rounded-3xl overflow-hidden border-2 border-white/10">
+                    <img src={newPortfolio.image} className="w-full h-full object-cover" alt="Preview" />
+                    <button onClick={() => setNewPortfolio({ ...newPortfolio, image: '' })} className="absolute top-4 left-4 w-10 h-10 bg-red-500/90 text-white rounded-full flex items-center justify-center hover:scale-110 transition">
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                )}
+                
+                <label className="flex flex-col items-center justify-center gap-4 p-8 border-2 border-dashed border-white/20 rounded-3xl cursor-pointer hover:border-[#FFD700] hover:bg-[#FFD700]/5 transition">
+                  <Upload className="w-12 h-12 text-[#FFD700]" />
+                  <span className="text-lg font-bold text-white">رفع صورة من جهازك</span>
+                  <span className="text-xs text-gray-500">PNG, JPG, GIF حتى 10MB</span>
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, (img: string) => setNewPortfolio({ ...newPortfolio, image: img }))} />
+                </label>
+                
+                <div className="relative">
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-5 pointer-events-none">
+                    <ImageIcon className="w-5 h-5 text-gray-500" />
+                  </div>
+                  <input placeholder="أو اضع رابط الصورة هنا" value={newPortfolio.image || ''} onChange={(e) => setNewPortfolio({ ...newPortfolio, image: e.target.value })} className="w-full bg-black/60 border-2 border-white/10 rounded-2xl px-6 pr-16 py-5 text-lg text-white focus:outline-none focus:border-[#FFD700] transition" />
+                </div>
+              </div>
+
+              <div className="pt-4 space-y-4">
+                <button onClick={() => {
+                  if(!newPortfolio.title) return
+                  const item = { id: Date.now(), title: newPortfolio.title, category: newPortfolio.category || 'تصميم', description: newPortfolio.description || '', image: newPortfolio.image || 'https://picsum.photos/400/300' }
+                  saveSiteData({ ...siteData, portfolio: [...siteData.portfolio, item] })
+                  setShowAddPortfolio(false)
+                  setNewPortfolio({})
+                }} className="w-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black py-6 rounded-3xl font-black text-xl shadow-xl hover:shadow-[#FFD700]/30 transition hover:scale-[1.02]">
+                  إضافة العمل
+                </button>
+                <button onClick={() => { setShowAddPortfolio(false); setNewPortfolio({}) }} className="w-full bg-white/5 text-white py-5 rounded-3xl font-bold hover:bg-white/10 transition">
+                  إلغاء
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Portfolio Modal */}
+      {showEditPortfolio && editPortfolioForm && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[999] p-6">
+          <div className="bg-[#0F0F0F] border border-white/10 rounded-[3rem] max-w-2xl w-full p-10 animate-in zoom-in-95 fade-in duration-300">
+            <div className="flex justify-between items-center mb-10">
+              <h3 className="text-3xl font-black text-white flex items-center gap-3">
+                <Edit className="text-[#FFD700]" />
+                تعديل العمل
+              </h3>
+              <button onClick={() => setShowEditPortfolio(false)} className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="space-y-8">
+              <div className="space-y-3">
+                <label className="text-sm font-bold text-gray-400">عنوان العمل</label>
+                <input placeholder="مثال: تصميم شعار شركة..." value={editPortfolioForm.title || ''} onChange={(e) => setEditPortfolioForm({ ...editPortfolioForm, title: e.target.value })} className="w-full bg-black/60 border-2 border-white/10 rounded-2xl px-6 py-5 text-lg text-white focus:outline-none focus:border-[#FFD700] transition" />
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-sm font-bold text-gray-400">تصنيف العمل</label>
+                <input placeholder="مثال: تصميم جرافيك، طباعة، اعلانات..." value={editPortfolioForm.category || ''} onChange={(e) => setEditPortfolioForm({ ...editPortfolioForm, category: e.target.value })} className="w-full bg-black/60 border-2 border-white/10 rounded-2xl px-6 py-5 text-lg text-white focus:outline-none focus:border-[#FFD700] transition" />
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-sm font-bold text-gray-400">وصف العمل</label>
+                <textarea placeholder="اكتب وصفاً مفصلاً للعمل..." value={editPortfolioForm.description || ''} onChange={(e) => setEditPortfolioForm({ ...editPortfolioForm, description: e.target.value })} className="w-full bg-black/60 border-2 border-white/10 rounded-2xl px-6 py-5 text-lg text-white focus:outline-none focus:border-[#FFD700] transition min-h-[120px]" />
+              </div>
+
+              <div className="space-y-4">
+                <label className="text-sm font-bold text-gray-400">صورة العمل</label>
+                
+                {editPortfolioForm.image && (
+                  <div className="relative h-60 bg-black/40 rounded-3xl overflow-hidden border-2 border-white/10">
+                    <img src={editPortfolioForm.image} className="w-full h-full object-cover" alt="Preview" />
+                    <button onClick={() => setEditPortfolioForm({ ...editPortfolioForm, image: '' })} className="absolute top-4 left-4 w-10 h-10 bg-red-500/90 text-white rounded-full flex items-center justify-center hover:scale-110 transition">
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                )}
+                
+                <label className="flex flex-col items-center justify-center gap-4 p-8 border-2 border-dashed border-white/20 rounded-3xl cursor-pointer hover:border-[#FFD700] hover:bg-[#FFD700]/5 transition">
+                  <Upload className="w-12 h-12 text-[#FFD700]" />
+                  <span className="text-lg font-bold text-white">رفع صورة من جهازك</span>
+                  <span className="text-xs text-gray-500">PNG, JPG, GIF حتى 10MB</span>
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, (img: string) => setEditPortfolioForm({ ...editPortfolioForm, image: img }))} />
+                </label>
+                
+                <div className="relative">
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-5 pointer-events-none">
+                    <ImageIcon className="w-5 h-5 text-gray-500" />
+                  </div>
+                  <input placeholder="أو اضع رابط الصورة هنا" value={editPortfolioForm.image || ''} onChange={(e) => setEditPortfolioForm({ ...editPortfolioForm, image: e.target.value })} className="w-full bg-black/60 border-2 border-white/10 rounded-2xl px-6 pr-16 py-5 text-lg text-white focus:outline-none focus:border-[#FFD700] transition" />
+                </div>
+              </div>
+
+              <div className="pt-4 space-y-4">
+                <button onClick={() => {
+                  const newPortfolio = siteData.portfolio.map(p => p.id === editPortfolioForm.id ? editPortfolioForm : p)
+                  saveSiteData({ ...siteData, portfolio: newPortfolio })
+                  setShowEditPortfolio(false)
+                  setEditPortfolioForm(null)
+                }} className="w-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black py-6 rounded-3xl font-black text-xl shadow-xl hover:shadow-[#FFD700]/30 transition hover:scale-[1.02] flex items-center justify-center gap-3">
+                  <Save className="w-6 h-6" />
+                  حفظ التعديلات
+                </button>
+                <button onClick={() => { setShowEditPortfolio(false); setEditPortfolioForm(null) }} className="w-full bg-white/5 text-white py-5 rounded-3xl font-bold hover:bg-white/10 transition">
+                  إلغاء
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Partner Modal */}
+      {showAddPartner && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[999] p-6">
+          <div className="bg-[#0F0F0F] border border-white/10 rounded-[3rem] max-w-xl w-full p-10 animate-in zoom-in-95 fade-in duration-300">
+            <div className="flex justify-between items-center mb-10">
+              <h3 className="text-3xl font-black text-white flex items-center gap-3">
+                <Heart className="text-[#FFD700]" />
+                إضافة شريك جديد
+              </h3>
+              <button onClick={() => setShowAddPartner(false)} className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="space-y-8">
+              <div className="space-y-3">
+                <label className="text-sm font-bold text-gray-400">اسم الشريك</label>
+                <input placeholder="مثال: شركة الندى..." value={newPartner.name || ''} onChange={(e) => setNewPartner({ ...newPartner, name: e.target.value })} className="w-full bg-black/60 border-2 border-white/10 rounded-2xl px-6 py-5 text-lg text-white focus:outline-none focus:border-[#FFD700] transition" />
+              </div>
+
+              <div className="space-y-4">
+                <label className="text-sm font-bold text-gray-400">لوجو الشريك</label>
+                
+                {newPartner.logo && (
+                  <div className="relative h-40 bg-black/40 rounded-3xl overflow-hidden border-2 border-white/10 flex items-center justify-center p-4">
+                    <img src={newPartner.logo} className="max-h-full max-w-full object-contain" alt="Preview" />
+                    <button onClick={() => setNewPartner({ ...newPartner, logo: '' })} className="absolute top-4 left-4 w-10 h-10 bg-red-500/90 text-white rounded-full flex items-center justify-center hover:scale-110 transition">
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                )}
+                
+                <label className="flex flex-col items-center justify-center gap-4 p-8 border-2 border-dashed border-white/20 rounded-3xl cursor-pointer hover:border-[#FFD700] hover:bg-[#FFD700]/5 transition">
+                  <Upload className="w-12 h-12 text-[#FFD700]" />
+                  <span className="text-lg font-bold text-white">رفع لوجو من جهازك</span>
+                  <span className="text-xs text-gray-500">PNG, JPG, GIF حتى 10MB</span>
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, (img: string) => setNewPartner({ ...newPartner, logo: img }))} />
+                </label>
+                
+                <div className="relative">
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-5 pointer-events-none">
+                    <ImageIcon className="w-5 h-5 text-gray-500" />
+                  </div>
+                  <input placeholder="أو اضع رابط اللوجو هنا" value={newPartner.logo || ''} onChange={(e) => setNewPartner({ ...newPartner, logo: e.target.value })} className="w-full bg-black/60 border-2 border-white/10 rounded-2xl px-6 pr-16 py-5 text-lg text-white focus:outline-none focus:border-[#FFD700] transition" />
+                </div>
+              </div>
+
+              <div className="pt-4 space-y-4">
+                <button onClick={() => {
+                  if(!newPartner.name) return
+                  const partner = { id: Date.now(), name: newPartner.name, logo: newPartner.logo || 'https://picsum.photos/200/200' }
+                  saveSiteData({ ...siteData, clients: [...siteData.clients, partner] })
+                  setShowAddPartner(false)
+                  setNewPartner({})
+                }} className="w-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black py-6 rounded-3xl font-black text-xl shadow-xl hover:shadow-[#FFD700]/30 transition hover:scale-[1.02]">
+                  إضافة الشريك
+                </button>
+                <button onClick={() => { setShowAddPartner(false); setNewPartner({}) }} className="w-full bg-white/5 text-white py-5 rounded-3xl font-bold hover:bg-white/10 transition">
+                  إلغاء
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Partner Modal */}
+      {showEditPartner && editPartnerForm && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[999] p-6">
+          <div className="bg-[#0F0F0F] border border-white/10 rounded-[3rem] max-w-xl w-full p-10 animate-in zoom-in-95 fade-in duration-300">
+            <div className="flex justify-between items-center mb-10">
+              <h3 className="text-3xl font-black text-white flex items-center gap-3">
+                <Edit className="text-[#FFD700]" />
+                تعديل الشريك
+              </h3>
+              <button onClick={() => setShowEditPartner(false)} className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="space-y-8">
+              <div className="space-y-3">
+                <label className="text-sm font-bold text-gray-400">اسم الشريك</label>
+                <input placeholder="مثال: شركة الندى..." value={editPartnerForm.name || ''} onChange={(e) => setEditPartnerForm({ ...editPartnerForm, name: e.target.value })} className="w-full bg-black/60 border-2 border-white/10 rounded-2xl px-6 py-5 text-lg text-white focus:outline-none focus:border-[#FFD700] transition" />
+              </div>
+
+              <div className="space-y-4">
+                <label className="text-sm font-bold text-gray-400">لوجو الشريك</label>
+                
+                {editPartnerForm.logo && (
+                  <div className="relative h-40 bg-black/40 rounded-3xl overflow-hidden border-2 border-white/10 flex items-center justify-center p-4">
+                    <img src={editPartnerForm.logo} className="max-h-full max-w-full object-contain" alt="Preview" />
+                    <button onClick={() => setEditPartnerForm({ ...editPartnerForm, logo: '' })} className="absolute top-4 left-4 w-10 h-10 bg-red-500/90 text-white rounded-full flex items-center justify-center hover:scale-110 transition">
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                )}
+                
+                <label className="flex flex-col items-center justify-center gap-4 p-8 border-2 border-dashed border-white/20 rounded-3xl cursor-pointer hover:border-[#FFD700] hover:bg-[#FFD700]/5 transition">
+                  <Upload className="w-12 h-12 text-[#FFD700]" />
+                  <span className="text-lg font-bold text-white">رفع لوجو من جهازك</span>
+                  <span className="text-xs text-gray-500">PNG, JPG, GIF حتى 10MB</span>
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, (img: string) => setEditPartnerForm({ ...editPartnerForm, logo: img }))} />
+                </label>
+                
+                <div className="relative">
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-5 pointer-events-none">
+                    <ImageIcon className="w-5 h-5 text-gray-500" />
+                  </div>
+                  <input placeholder="أو اضع رابط اللوجو هنا" value={editPartnerForm.logo || ''} onChange={(e) => setEditPartnerForm({ ...editPartnerForm, logo: e.target.value })} className="w-full bg-black/60 border-2 border-white/10 rounded-2xl px-6 pr-16 py-5 text-lg text-white focus:outline-none focus:border-[#FFD700] transition" />
+                </div>
+              </div>
+
+              <div className="pt-4 space-y-4">
+                <button onClick={() => {
+                  const newClients = siteData.clients.map(c => c.id === editPartnerForm.id ? editPartnerForm : c)
+                  saveSiteData({ ...siteData, clients: newClients })
+                  setShowEditPartner(false)
+                  setEditPartnerForm(null)
+                }} className="w-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black py-6 rounded-3xl font-black text-xl shadow-xl hover:shadow-[#FFD700]/30 transition hover:scale-[1.02] flex items-center justify-center gap-3">
+                  <Save className="w-6 h-6" />
+                  حفظ التعديلات
+                </button>
+                <button onClick={() => { setShowEditPartner(false); setEditPartnerForm(null) }} className="w-full bg-white/5 text-white py-5 rounded-3xl font-bold hover:bg-white/10 transition">
+                  إلغاء
+                </button>
               </div>
             </div>
           </div>

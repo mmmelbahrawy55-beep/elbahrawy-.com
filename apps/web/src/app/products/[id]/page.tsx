@@ -10,6 +10,7 @@ export default function ProductDetails() {
   const [siteData, setSiteData] = useState(defaultSiteData)
   const [product, setProduct] = useState<any>(null)
   const [currentStep, setCurrentStep] = useState(1)
+  const [quantity, setQuantity] = useState(1) // Added quantity state
   const [formData, setFormData] = useState({
     size: '',
     customSize: { width: '', height: '', unit: 'cm' },
@@ -32,7 +33,31 @@ export default function ProductDetails() {
     setProduct(prod)
   }, [siteData, params.id])
 
+  // Calculate total price
+  const calculateTotalPrice = () => {
+    if (!product) return 0
+    
+    // If it's per meter, and custom size is provided, calculate area
+    if (product.pricingType === 'meter' && formData.size === 'مخصص' && formData.customSize.width && formData.customSize.height) {
+      let width = Number(formData.customSize.width)
+      let height = Number(formData.customSize.height)
+      
+      // Convert cm to meters
+      if (formData.customSize.unit === 'cm') {
+        width = width / 100
+        height = height / 100
+      }
+      
+      const area = width * height
+      return Math.round(product.price * area * quantity)
+    }
+    
+    // Default: price per unit * quantity
+    return Math.round(product.price * quantity)
+  }
+
   const handleWhatsAppSubmit = () => {
+    const totalPrice = calculateTotalPrice()
     let message = `طلب جديد للمنتج: ${product?.name}%0A%0A`
     if (formData.size) {
       message += `المقاس المختار: ${formData.size}%0A`
@@ -40,19 +65,22 @@ export default function ProductDetails() {
     if (formData.customSize.width && formData.customSize.height) {
       message += `مقاس مخصص: ${formData.customSize.width} x ${formData.customSize.height} ${formData.customSize.unit}%0A`
     }
+    message += `الكمية: ${quantity}%0A`
     message += `تحتاج تصميم: ${formData.needDesign ? 'نعم' : 'لا'}%0A`
     if (formData.notes) {
       message += `ملاحظات: ${formData.notes}%0A`
     }
     message += `الاسم: ${formData.name}%0A`
     message += `رقم الهاتف: ${formData.phone}%0A%0A`
-    message += `السعر تقديري: ${product?.price} ج.م (يتحدد النهائي بعد التواصل)%0A`
+    message += `السعر الإجمالي: ${totalPrice} ج.م%0A`
 
     const whatsappUrl = `https://wa.me/201120053007?text=${message}`
     window.open(whatsappUrl, '_blank')
   }
 
   if (!product) return <div className="min-h-screen flex items-center justify-center text-white">جاري التحميل...</div>
+
+  const totalPrice = calculateTotalPrice()
 
   return (
     <div className="min-h-screen pt-24 pb-16 bg-background">
@@ -69,9 +97,39 @@ export default function ProductDetails() {
             <div>
               <h1 className="text-4xl md:text-5xl font-black text-white mb-4">{product.name}</h1>
               <p className="text-2xl font-black text-primary mb-6">
-                {product.price} ج.م {product.pricingType === 'meter' ? '/متر' : product.pricingType === 'letter' ? '/حرف' : ''}
+                {product.price} ج.م {product.pricingType === 'meter' ? '/متر' : product.pricingType === 'letter' ? '/حرف' : '/القطعة'}
               </p>
               <p className="text-muted-foreground text-lg leading-relaxed">{product.description}</p>
+              
+              {/* Quantity Input */}
+              <div className="mt-8 space-y-4">
+                <label className="text-white font-bold text-lg">الكمية المطلوبة</label>
+                <div className="flex items-center gap-4">
+                  <button 
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="w-12 h-12 bg-muted rounded-xl flex items-center justify-center text-2xl font-bold hover:bg-primary transition"
+                  >
+                    -
+                  </button>
+                  <input
+                    type="number"
+                    value={quantity}
+                    onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
+                    className="w-24 text-center bg-muted border border-border rounded-xl py-3 text-2xl font-black text-white"
+                    min={1}
+                  />
+                  <button 
+                    onClick={() => setQuantity(quantity + 1)}
+                    className="w-12 h-12 bg-muted rounded-xl flex items-center justify-center text-2xl font-bold hover:bg-primary transition"
+                  >
+                    +
+                  </button>
+                </div>
+                <div className="bg-primary/10 border border-primary rounded-2xl p-6">
+                  <p className="text-muted-foreground text-lg">السعر الإجمالي</p>
+                  <p className="text-4xl font-black text-primary">{totalPrice} ج.م</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -276,6 +334,8 @@ export default function ProductDetails() {
                   <p><span className="text-muted-foreground">المنتج:</span> {product.name}</p>
                   {formData.size && <p><span className="text-muted-foreground">المقاس:</span> {formData.size}</p>}
                   {formData.customSize.width && formData.customSize.height && <p><span className="text-muted-foreground">مقاس مخصص:</span> {formData.customSize.width} x {formData.customSize.height} {formData.customSize.unit}</p>}
+                  <p><span className="text-muted-foreground">الكمية:</span> {quantity}</p>
+                  <p><span className="text-muted-foreground">السعر الإجمالي:</span> {totalPrice} ج.م</p>
                   <p><span className="text-muted-foreground">التصميم:</span> {formData.needDesign ? 'منكم' : 'عندي'}</p>
                   <p><span className="text-muted-foreground">الاسم:</span> {formData.name}</p>
                   <p><span className="text-muted-foreground">الهاتف:</span> {formData.phone}</p>

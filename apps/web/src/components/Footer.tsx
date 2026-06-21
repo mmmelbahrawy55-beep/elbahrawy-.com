@@ -17,7 +17,7 @@ export default function Footer() {
             </h3>
           </div>
           <p className="text-muted-foreground max-w-xl mb-8">
-            {siteData.companyName} - إبداع يلتحقي الحدود. تميز لا ينسى
+            {siteData.companyName} - إبداع يفوق الحدود. تميز يصنع التاريخ
           </p>
           <div className="flex gap-4 mb-8">
             <a href="#" className="w-14 h-14 bg-muted rounded-full flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition text-2xl">

@@ -15,7 +15,7 @@ const cairo = Cairo({
 
 export const metadata: Metadata = {
   title: "البحراوي للدعاية والاعلان",
-  description: "البحراوي للدعاية والاعلان - إبداع يلتحقي الحدود. تميز لا ينسى",
+  description: "البحراوي للدعاية والاعلان - إبداع يفوق الحدود. تميز يصنع التاريخ",
 };
 
 export default function RootLayout({
