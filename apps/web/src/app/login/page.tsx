@@ -23,6 +23,10 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
 
+    // Clear old user data first
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+
     if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
       // Admin login
       const adminUser = {
@@ -57,6 +61,10 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = () => {
+    // Clear old user data first
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+
     // Customer Google Login only (redirects to homepage)
     const mockGoogleUser = {
       id: Date.now(),
