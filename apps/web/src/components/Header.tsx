@@ -13,6 +13,13 @@ export default function Header() {
     setIsLoggedIn(!!user)
   }, [pathname])
 
+  const handleLogout = () => {
+    localStorage.removeItem('user')
+    localStorage.removeItem('token')
+    setIsLoggedIn(false)
+    window.location.href = '/'
+  }
+
   const isActive = (path: string) => pathname === path
 
   return (
@@ -45,9 +52,17 @@ export default function Header() {
 
         <div className="flex items-center gap-4">
           {isLoggedIn ? (
-            <Link href="/dashboard" className="btn-primary">
-              لوحة التحكم
-            </Link>
+            <>
+              <Link href="/dashboard" className="btn-primary">
+                لوحة التحكم
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="px-6 py-3 rounded-xl font-bold text-white hover:bg-white/10 transition"
+              >
+                تسجيل الخروج
+              </button>
+            </>
           ) : (
             <Link href="/login" className="btn-primary">
               تسجيل الدخول
