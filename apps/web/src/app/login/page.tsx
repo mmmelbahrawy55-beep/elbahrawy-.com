@@ -4,6 +4,10 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Crown, Eye, EyeOff } from 'lucide-react';
 
+// Fixed admin credentials
+const ADMIN_EMAIL = 'admin@albahrawy.com';
+const ADMIN_PASSWORD = 'admin123';
+
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
@@ -11,44 +15,62 @@ export default function LoginPage() {
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
 
-    // Use only mock data
-    const mockUser = {
-      id: '1',
-      name: isLogin ? 'Admin' : name,
-      email: email,
-      role: 'admin',
-    };
-    localStorage.setItem('token', 'mock-token-12345');
-    localStorage.setItem('user', JSON.stringify(mockUser));
-    
-    // Simulate delay
-    setTimeout(() => {
-      setLoading(false);
-      router.push('/dashboard');
-    }, 1000);
+    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      // Admin login
+      const adminUser = {
+        id: '1',
+        name: 'Admin',
+        email: email,
+        role: 'admin',
+      };
+      localStorage.setItem('token', 'admin-token-12345');
+      localStorage.setItem('user', JSON.stringify(adminUser));
+      
+      setTimeout(() => {
+        setLoading(false);
+        router.push('/dashboard');
+      }, 500);
+    } else {
+      // Customer login/signup
+      const customerUser = {
+        id: Date.now().toString(),
+        name: isLogin ? 'عميل' : name,
+        email: email,
+        role: 'customer',
+      };
+      localStorage.setItem('token', 'customer-token-' + Date.now());
+      localStorage.setItem('user', JSON.stringify(customerUser));
+      
+      setTimeout(() => {
+        setLoading(false);
+        router.push('/');
+      }, 500);
+    }
   };
 
   const handleGoogleLogin = () => {
-    // Mock Google Login (stores user to localStorage)
+    // Customer Google Login only (redirects to homepage)
     const mockGoogleUser = {
       id: Date.now(),
       name: 'مستخدم جوجل',
       email: 'user@gmail.com',
       provider: 'google',
-      role: 'admin',
+      role: 'customer',
     };
     
     localStorage.setItem('token', 'google-token-' + Date.now());
     localStorage.setItem('user', JSON.stringify(mockGoogleUser));
     
     setTimeout(() => {
-      router.push('/dashboard');
+      router.push('/');
     }, 500);
   };
 

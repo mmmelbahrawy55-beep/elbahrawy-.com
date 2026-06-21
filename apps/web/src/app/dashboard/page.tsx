@@ -163,9 +163,16 @@ export default function DashboardPage() {
   const [editPartnerForm, setEditPartnerForm] = useState<any>(null)
 
   useEffect(() => {
-    const user = localStorage.getItem('user')
-    if (!user) {
+    const userStr = localStorage.getItem('user')
+    if (!userStr) {
       router.push('/login')
+      return
+    }
+
+    const user = JSON.parse(userStr)
+    if (user.role !== 'admin') {
+      // Not admin, redirect to homepage
+      router.push('/')
       return
     }
 
