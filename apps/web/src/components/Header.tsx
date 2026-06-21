@@ -6,19 +6,6 @@ import { useEffect, useState } from 'react'
 
 export default function Header() {
   const pathname = usePathname()
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-
-  useEffect(() => {
-    const user = localStorage.getItem('user')
-    setIsLoggedIn(!!user)
-  }, [pathname])
-
-  const handleLogout = () => {
-    localStorage.removeItem('user')
-    localStorage.removeItem('token')
-    setIsLoggedIn(false)
-    window.location.href = '/'
-  }
 
   const isActive = (path: string) => pathname === path
 
@@ -51,23 +38,9 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-4">
-          {isLoggedIn ? (
-            <>
-              <Link href="/dashboard" className="btn-primary">
-                لوحة التحكم
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="px-6 py-3 rounded-xl font-bold text-white hover:bg-white/10 transition"
-              >
-                تسجيل الخروج
-              </button>
-            </>
-          ) : (
-            <Link href="/login" className="btn-primary">
-              تسجيل الدخول
-            </Link>
-          )}
+          <Link href="/login" className="btn-primary">
+            تسجيل الدخول
+          </Link>
         </div>
       </div>
     </header>

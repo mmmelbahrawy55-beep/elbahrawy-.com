@@ -50,8 +50,10 @@ export const defaultData = {
     { id: 4, name: "إتصالات", logo: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=400&auto=format&fit=crop" }
   ],
   testimonials: [
-    { name: "مصطفى عبدالله", company: "شركة أوراسكوم", text: "خدماتهم جودة عالية وتوصي بوقت معقول", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&auto=format&fit=crop" },
-    { name: "سارة محمد", company: "مجموعة الفطيم", text: "تعاون ممتاز ومساعدة في كل مرحلة", image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=400&auto=format&fit=crop" }
+    { name: "أحمد علي", company: "مدير شركة التميز", text: "خدماتهم ممتازة ومساعدة في كل مرحلة من التصميم إلى التنفيذ", image: "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&dpr=1" },
+    { name: "فاطمة محمد", company: "صاحبة مشروع رائد", text: "أفضل شركة تعاملت معها! الجودة والاحترام في الوقت المحدد", image: "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&dpr=1" },
+    { name: "محمد حسن", company: "مؤسس شركة الإبداع", text: "تعاون مثالي وفريق محترف! أوصي بهم بشدة", image: "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&dpr=1" },
+    { name: "نورا سعيد", company: "مصممة جرافيك", text: "دقة وتفاصيل في كل عمل! أنا متمسكة بالتعاون معهم", image: "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&dpr=1" }
   ],
   services: [
     { title: "تصميم جرافيكي", description: "تصميم احترافي لجميع احتياجاتك", icon: "fa-palette" },
