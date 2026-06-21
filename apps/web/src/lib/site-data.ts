@@ -2,7 +2,60 @@
 // BROWSER-SAFE DEFAULT DATA
 // ==============================================
 
-export const defaultData = {
+export interface Order {
+  id: number;
+  name: string;
+  phone: string;
+  projectDetails: string;
+  source: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  icon: string;
+  image?: string;
+}
+
+export interface Product {
+  id: number;
+  name: string;
+  price: number;
+  category: string;
+  image: string;
+  description: string;
+  pricingType: string;
+  width?: number;
+  height?: number;
+  unit?: string;
+}
+
+export interface SiteData {
+  companyName: string;
+  ownerName: string;
+  phone: string;
+  email: string;
+  location: string;
+  credentials: {
+    owner: {
+      email: string;
+      password: string;
+    };
+  };
+  categories: Category[];
+  products: Product[];
+  faqs: { id: number; question: string; answer: string }[];
+  portfolio: { id: number; title: string; category: string; image: string; description: string }[];
+  clients: { id: number; name: string; logo: string }[];
+  testimonials: { name: string; company: string; text: string; image: string }[];
+  services: { title: string; description: string; icon: string }[];
+  blog: any[];
+  orders: Order[];
+}
+
+export const defaultData: SiteData = {
   companyName: "البحراوي للدعاية والإعلان",
   ownerName: "محمد البحراوي",
   phone: "01120053007",
@@ -15,11 +68,11 @@ export const defaultData = {
     }
   },
   categories: [
-    { id: "all", name: "الكل", icon: "fa-th" },
-    { id: "signs", name: "لوحات إعلانية", icon: "fa-sign" },
-    { id: "printing", name: "طباعة", icon: "fa-print" },
-    { id: "branding", name: "هوية تجارية", icon: "fa-palette" },
-    { id: "laser", name: "حفر ليزر", icon: "fa-laser" }
+    { id: "all", name: "الكل", icon: "fa-th", image: "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?q=80&w=400&auto=format&fit=crop" },
+    { id: "signs", name: "لوحات إعلانية", icon: "fa-sign", image: "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?q=80&w=400&auto=format&fit=crop" },
+    { id: "printing", name: "طباعة", icon: "fa-print", image: "https://images.unsplash.com/photo-1586075010923-2dd4570fb338?q=80&w=400&auto=format&fit=crop" },
+    { id: "branding", name: "هوية تجارية", icon: "fa-palette", image: "https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=400&auto=format&fit=crop" },
+    { id: "laser", name: "حفر ليزر", icon: "fa-laser", image: "https://images.unsplash.com/photo-1531207991955-3e8c8c2c2f7c?q=80&w=400&auto=format&fit=crop" }
   ],
   products: [
     { id: 1, name: "لوحة إعلانية خارجية مضيئة", price: 3500, category: "signs", image: "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?q=80&w=800&auto=format&fit=crop", description: "لوحة إعلانية فليكس مضيئة بإضاءة LED عالية الجودة، مقاومة للعوامل الجوية.", pricingType: "meter" },
