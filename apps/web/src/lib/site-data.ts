@@ -1,8 +1,6 @@
-import fs from 'fs'
-import path from 'path'
-import { prisma } from '@albahrawy/database'
-
-const dataFilePath = path.join(process.cwd(), 'apps', 'web', 'src', 'lib', 'site-data.json')
+// ==============================================
+// BROWSER-SAFE EXPORTS (NO NODE.JS MODULES HERE)
+// ==============================================
 
 export const defaultData = {
   companyName: "البحراوي للدعاية والإعلان",
@@ -24,82 +22,18 @@ export const defaultData = {
     { id: "laser", name: "حفر ليزر", icon: "fa-laser" }
   ],
   products: [
-    { 
-      id: 1, 
-      name: "لوحة إعلانية خارجية مضيئة", 
-      price: 3500, 
-      category: "signs", 
-      image: "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?q=80&w=800&auto=format&fit=crop", 
-      description: "لوحة إعلانية فليكس مضيئة بإضاءة LED عالية الجودة، مقاومة للعوامل الجوية.",
-      pricingType: "meter"
-    },
-    { 
-      id: 2, 
-      name: "كروت شخصية فاخرة", 
-      price: 250, 
-      category: "printing", 
-      image: "https://images.unsplash.com/photo-1586075010923-2dd4570fb338?q=80&w=800&auto=format&fit=crop", 
-      description: "1000 كرت شخصي، طباعة وجهين، سلوفان حراري، ورق 350 جرام.",
-      pricingType: "piece"
-    },
-    { 
-      id: 3, 
-      name: "تصميم هوية تجارية", 
-      price: 5000, 
-      category: "branding", 
-      image: "https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=800&auto=format&fit=crop", 
-      description: "شعار احترافي، أوراق رسمية، أظرف، وفولدرات لشركتك.",
-      pricingType: "piece"
-    },
-    { 
-      id: 4, 
-      name: "درع كريستال محفور", 
-      price: 450, 
-      category: "laser", 
-      image: "https://images.unsplash.com/photo-1531207991955-3e8c8c2c2f7c?q=80&w=800&auto=format&fit=crop", 
-      description: "درع كريستال فاخر مع حفر ليزر دقيق للصور والنصوص.",
-      pricingType: "piece"
-    },
-    { 
-      id: 5, 
-      name: "رول اب ستاند", 
-      price: 850, 
-      category: "signs", 
-      image: "https://images.unsplash.com/photo-1542744095-2ad4870b62ef?q=80&w=800&auto=format&fit=crop", 
-      description: "ستاند رول اب مقاس 85×200 سم، طباعة بنر عالية الدقة مع شنطة حمل.",
-      pricingType: "piece"
-    },
-    { 
-      id: 6, 
-      name: "طباعة تيشرتات", 
-      price: 180, 
-      category: "printing", 
-      image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=800&auto=format&fit=crop", 
-      description: "طباعة حرارية ديجيتال على تيشرتات قطنية بجودة ألوان ممتازة.",
-      pricingType: "piece"
-    }
+    { id: 1, name: "لوحة إعلانية خارجية مضيئة", price: 3500, category: "signs", image: "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?q=80&w=800&auto=format&fit=crop", description: "لوحة إعلانية فليكس مضيئة بإضاءة LED عالية الجودة، مقاومة للعوامل الجوية.", pricingType: "meter" },
+    { id: 2, name: "كروت شخصية فاخرة", price: 250, category: "printing", image: "https://images.unsplash.com/photo-1586075010923-2dd4570fb338?q=80&w=800&auto=format&fit=crop", description: "1000 كرت شخصي، طباعة وجهين، سلوفان حراري، ورق 350 جرام.", pricingType: "piece" },
+    { id: 3, name: "تصميم هوية تجارية", price: 5000, category: "branding", image: "https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=800&auto=format&fit=crop", description: "شعار احترافي، أوراق رسمية، أظرف، وفولدرات لشركتك.", pricingType: "piece" },
+    { id: 4, name: "درع كريستال محفور", price: 450, category: "laser", image: "https://images.unsplash.com/photo-1531207991955-3e8c8c2c2f7c?q=80&w=800&auto=format&fit=crop", description: "درع كريستال فاخر مع حفر ليزر دقيق للصور والنصوص.", pricingType: "piece" },
+    { id: 5, name: "رول اب ستاند", price: 850, category: "signs", image: "https://images.unsplash.com/photo-1542744095-2ad4870b62ef?q=80&w=800&auto=format&fit=crop", description: "ستاند رول اب مقاس 85×200 سم، طباعة بنر عالية الدقة مع شنطة حمل.", pricingType: "piece" },
+    { id: 6, name: "طباعة تيشرتات", price: 180, category: "printing", image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=800&auto=format&fit=crop", description: "طباعة حرارية ديجيتال على تيشرتات قطنية بجودة ألوان ممتازة.", pricingType: "piece" }
   ],
   faqs: [
-    {
-      id: 1,
-      question: "ما هي مدة تنفيذ الطلب؟",
-      answer: "تختلف المدة حسب نوع المشروع، ولكن غالباً ما يتم تنفيذ المطبوعات البسيطة خلال 24-48 ساعة، بينما المشاريع الكبيرة مثل اللوحات الإعلانية تستغرق من 3 إلى 7 أيام عمل."
-    },
-    {
-      id: 2,
-      question: "هل توفرون خدمة التركيب؟",
-      answer: "نعم، لدينا فريق متخصص لتركيب جميع أنواع اللوحات الإعلانية والواجهات في أي مكان داخل محافظة الشرقية وخارجها."
-    },
-    {
-      id: 3,
-      question: "هل يمكنني التعديل على التصميم بعد البدء؟",
-      answer: "نعم، نوفر للعميل مرحلة مراجعة التصميم المبدئي حيث يمكنه طلب أي تعديلات قبل البدء في مرحلة التنفيذ النهائية."
-    },
-    {
-      id: 4,
-      question: "ما هي طرق الدفع المتاحة؟",
-      answer: "نقبل الدفع نقداً، أو عن طريق التحويل البنكي، أو فودافون كاش، كما نوفر أنظمة دفع ميسرة للتعاقدات السنوية."
-    }
+    { id: 1, question: "ما هي مدة تنفيذ الطلب؟", answer: "تختلف المدة حسب نوع المشروع، ولكن غالباً ما يتم تنفيذ المطبوعات البسيطة خلال 24-48 ساعة، بينما المشاريع الكبيرة مثل اللوحات الإعلانية تستغرق من 3 إلى 7 أيام عمل." },
+    { id: 2, question: "هل توفرون خدمة التركيب؟", answer: "نعم، لدينا فريق متخصص لتركيب جميع أنواع اللوحات الإعلانية والواجهات في أي مكان داخل محافظة الشرقية وخارجها." },
+    { id: 3, question: "هل يمكنني التعديل على التصميم بعد البدء؟", answer: "نعم، نوفر للعميل مرحلة مراجعة التصميم المبدئي حيث يمكنه طلب أي تعديلات قبل البدء في مرحلة التنفيذ النهائية." },
+    { id: 4, question: "ما هي طرق الدفع المتاحة؟", answer: "نقبل الدفع نقداً، أو عن طريق التحويل البنكي، أو فودافون كاش، كما نوفر أنظمة دفع ميسرة للتعاقدات السنوية." }
   ],
   portfolio: [
     { id: 1, title: "هوية بصرية لشركة XYZ", category: "تصميم جرافيكي", image: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=800&auto=format&fit=crop", description: "تصميم هوية بصرية كاملة للشركة" },
@@ -107,7 +41,7 @@ export const defaultData = {
     { id: 3, title: "فيديو دعائي", category: "إنتاج فيديو", image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop", description: "فيديو دعائي احترافي للمنتج" },
     { id: 4, title: "لوحات إعلانية لمول", category: "تصميم جرافيكي", image: "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?q=80&w=800&auto=format&fit=crop", description: "تصميم وتنفيذ لوحات إعلانية للمول" },
     { id: 5, title: "حملة سوشيال ميديا", category: "تسويق رقمي", image: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=800&auto=format&fit=crop", description: "إدارة حملات سوشيال ميديا" },
-    { id: 6, title: "مطبوعات شركة", category: "طباعة", image: "https://images.unsplash.com/photo-1553877522-43269d4ea984?q=80&w=800&auto=format&fit=crop", description: "مطبوعات احترافي للشركة" }
+    { id: 6, title: "مطبوعات شركة", category: "طباعة", image: "https://images.unsplash.com/photo-1553877522-43269d4ea984?q=80&w=800&auto=format&fit=crop", description: "مطبوعات احترافية للشركة" }
   ],
   clients: [
     { id: 1, name: "مجموعة الفطيم", logo: "https://images.unsplash.com/photo-1614680376593-902f74cf389e?q=80&w=400&auto=format&fit=crop" },
@@ -126,31 +60,54 @@ export const defaultData = {
     { title: "تسويق رقمي", description: "حلول تسويقية متكاملة", icon: "fa-bullhorn" }
   ],
   blog: []
+};
+
+export const siteData = defaultData;
+
+// ==============================================
+// SERVER-ONLY FUNCTIONS (IMPORT NODE.JS MODULES HERE)
+// ==============================================
+
+// Import node modules only in server context
+let prisma: any;
+try {
+  const { prisma: db } = require('@albahrawy/database');
+  prisma = db;
+} catch (e) {
+  // Prisma not available in browser
 }
 
 export async function getSiteData() {
   try {
-    const config = await prisma.siteConfig.findUnique({ where: { id: 'current' } })
-    if (config) return JSON.parse(config.data)
-    if (fs.existsSync(dataFilePath)) return JSON.parse(fs.readFileSync(dataFilePath, 'utf8'))
-    return defaultData
+    if (prisma) {
+      const config = await prisma.siteConfig.findUnique({ where: { id: 'current' } });
+      if (config) {
+        return JSON.parse(config.data);
+      }
+    }
+    return defaultData;
   } catch (error) {
-    console.error('Error getting site data:', error)
-    return defaultData
+    console.error('Error getting site data:', error);
+    return defaultData;
   }
 }
 
+// Backward compatibility - load from file for local dev
 export function loadSiteData() {
   if (typeof window === 'undefined') {
     try {
-      if (fs.existsSync(dataFilePath)) return JSON.parse(fs.readFileSync(dataFilePath, 'utf8'))
-      return defaultData
+      const fs = require('fs');
+      const path = require('path');
+      const dataFilePath = path.join(process.cwd(), 'apps', 'web', 'src', 'lib', 'site-data.json');
+      if (fs.existsSync(dataFilePath)) {
+        const fileContent = fs.readFileSync(dataFilePath, 'utf8');
+        return JSON.parse(fileContent);
+      }
+      return defaultData;
     } catch (error) {
-      console.error('Error loading site data:', error)
-      return defaultData
+      console.error('Error loading site data:', error);
+      return defaultData;
     }
   }
-  return null
+  return null;
 }
-
-export const siteData = loadSiteData() || defaultData
