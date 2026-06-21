@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ==================== AUTH ====================
@@ -345,4 +346,11 @@ model AuditLog {
   @@index([createdAt])
   @@index([action])
   @@index([entityType, entityId])
+}
+
+// ==================== SITE CONFIGURATION ====================
+model SiteConfig {
+  id        String   @id @default("current")
+  data      String   // Store full site-data.json as a stringified JSON
+  updatedAt DateTime @updatedAt
 }

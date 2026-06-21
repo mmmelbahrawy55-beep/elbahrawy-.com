@@ -179,9 +179,24 @@ export default function DashboardPage() {
   }, [])
 
   // --- Save Helpers ---
-  const saveSiteData = (newData: any) => {
+  const saveSiteData = async (newData: any) => {
     setSiteData(newData)
     localStorage.setItem('albahrawy_site_data', JSON.stringify(newData))
+    
+    // Save to server for online persistence
+    try {
+      const response = await fetch('/api/save-data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newData),
+      })
+      if (!response.ok) {
+        throw new Error('Failed to save to server')
+      }
+      console.log('Site data saved to server successfully')
+    } catch (error) {
+      console.error('Error saving site data to server:', error)
+    }
   }
 
   const saveCustomers = (newCustomers: Customer[]) => {

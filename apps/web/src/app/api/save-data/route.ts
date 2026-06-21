@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { prisma } from '@albahrawy/database'
 import fs from 'fs'
 import path from 'path'
 
@@ -9,7 +10,25 @@ export async function POST(request: Request) {
     const body = await request.json()
     const dataToSave = JSON.stringify(body, null, 2)
     
-    fs.writeFileSync(dataFilePath, dataToSave, 'utf8')
+    // 1. Save to Database (for production/online)
+    try {
+      await prisma.siteConfig.upsert({
+        where: { id: 'current' },
+        update: { data: dataToSave },
+        create: { id: 'current', data: dataToSave },
+      })
+    } catch (dbError) {
+      console.error('Database save error, falling back to file:', dbError)
+    }
+
+    // 2. Also save to file (for local development backup)
+    try {
+      if (fs.existsSync(path.dirname(dataFilePath))) {
+        fs.writeFileSync(dataFilePath, dataToSave, 'utf8')
+      }
+    } catch (fsError) {
+      console.error('File save error:', fsError)
+    }
     
     return NextResponse.json({ success: true, message: 'Data saved successfully!' })
   } catch (error) {

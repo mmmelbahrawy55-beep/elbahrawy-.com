@@ -8,10 +8,28 @@ export default function Home() {
   const [activeCategory, setActiveCategory] = useState('all')
 
   useEffect(() => {
+    // 1. Load from localStorage (existing logic)
     const storedData = localStorage.getItem('albahrawy_site_data')
     if (storedData) {
       setSiteData(JSON.parse(storedData))
     }
+
+    // 2. Fetch fresh data from API (for online updates)
+    const fetchFreshData = async () => {
+      try {
+        const response = await fetch('/api/site-data')
+        if (response.ok) {
+          const freshData = await response.json()
+          setSiteData(freshData)
+          // Update localStorage as well
+          localStorage.setItem('albahrawy_site_data', JSON.stringify(freshData))
+        }
+      } catch (error) {
+        console.error('Failed to fetch fresh site data:', error)
+      }
+    }
+
+    fetchFreshData()
 
     const handleStorageChange = () => {
       const updatedData = localStorage.getItem('albahrawy_site_data')
