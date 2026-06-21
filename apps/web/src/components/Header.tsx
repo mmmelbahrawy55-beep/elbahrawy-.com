@@ -17,41 +17,7 @@ export default function Header() {
 
   return (
     <header className="glass-header">
-      <div className="container mx-auto px-6 py-4 flex flex-row-reverse justify-between items-center">
-        <div className="flex items-center gap-4">
-          {isLoggedIn ? (
-            <>
-              <Link 
-                href="/dashboard" 
-                className={`${isActive('/dashboard') ? 'text-primary' : 'text-white hover:text-primary'} transition font-bold text-sm`}
-              >
-                لوحة التحكم
-              </Link>
-              <button 
-                onClick={() => {
-                  localStorage.removeItem('user')
-                  localStorage.removeItem('token')
-                  window.location.href = '/'
-                }}
-                className="text-white hover:text-red-500 transition font-bold text-sm"
-              >
-                تسجيل الخروج
-              </button>
-            </>
-          ) : (
-            <Link href="/login" className="btn-primary">
-              تسجيل الدخول
-            </Link>
-          )}
-        </div>
-
-        <nav className="hidden md:flex items-center space-x-8 font-bold text-sm flex-row-reverse">
-          <Link href="/" className={`${isActive('/') ? 'text-primary' : 'text-white hover:text-primary'} transition`}>الرئيسية</Link>
-          <Link href="/products" className={`${isActive('/products') ? 'text-primary' : 'text-white hover:text-primary'} transition`}>المنتجات</Link>
-          <Link href="/portfolio" className={`${isActive('/portfolio') ? 'text-primary' : 'text-white hover:text-primary'} transition`}>أعمالنا</Link>
-          <Link href="/contact" className={`${isActive('/contact') ? 'text-primary' : 'text-white hover:text-primary'} transition`}>تواصل معنا</Link>
-        </nav>
-
+      <div className="container mx-auto px-6 py-4 flex justify-between items-center">
         <Link href="/" className="flex items-center gap-4">
           <div className="w-16 h-16 flex items-center justify-center">
             <img
@@ -69,6 +35,25 @@ export default function Header() {
             </h1>
           </div>
         </Link>
+
+        <nav className="hidden md:flex items-center space-x-reverse space-x-8 font-bold text-sm">
+          <Link href="/" className={`${isActive('/') ? 'text-primary' : 'text-white hover:text-primary'} transition`}>الرئيسية</Link>
+          <Link href="/products" className={`${isActive('/products') ? 'text-primary' : 'text-white hover:text-primary'} transition`}>المنتجات</Link>
+          <Link href="/portfolio" className={`${isActive('/portfolio') ? 'text-primary' : 'text-white hover:text-primary'} transition`}>أعمالنا</Link>
+          <Link href="/contact" className={`${isActive('/contact') ? 'text-primary' : 'text-white hover:text-primary'} transition`}>تواصل معنا</Link>
+        </nav>
+
+        <div className="flex items-center gap-4">
+          {isLoggedIn ? (
+            <Link href="/dashboard" className="btn-primary">
+              لوحة التحكم
+            </Link>
+          ) : (
+            <Link href="/login" className="btn-primary">
+              تسجيل الدخول
+            </Link>
+          )}
+        </div>
       </div>
     </header>
   )
