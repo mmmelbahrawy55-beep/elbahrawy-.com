@@ -2,25 +2,9 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
 
 export default function Header() {
   const pathname = usePathname()
-  const [user, setUser] = useState<any>(null)
-
-  useEffect(() => {
-    const userStr = localStorage.getItem('user')
-    if (userStr) {
-      setUser(JSON.parse(userStr))
-    }
-  }, [pathname])
-
-  const handleLogout = () => {
-    localStorage.removeItem('user')
-    localStorage.removeItem('token')
-    setUser(null)
-    window.location.href = '/'
-  }
 
   const isActive = (path: string) => pathname === path
 
@@ -53,27 +37,9 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-4">
-          {user ? (
-            <>
-              {user.role === 'admin' ? (
-                <Link href="/dashboard" className="btn-primary">
-                  لوحة التحكم
-                </Link>
-              ) : (
-                <span className="text-white font-bold">{user.name}</span>
-              )}
-              <button
-                onClick={handleLogout}
-                className="px-6 py-3 rounded-xl font-bold text-white hover:bg-white/10 transition"
-              >
-                تسجيل الخروج
-              </button>
-            </>
-          ) : (
-            <Link href="/login" className="btn-primary">
-              تسجيل الدخول
-            </Link>
-          )}
+          <Link href="/login" className="btn-primary">
+            تسجيل الدخول
+          </Link>
         </div>
       </div>
     </header>
