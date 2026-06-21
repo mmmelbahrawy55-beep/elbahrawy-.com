@@ -1,5 +1,7 @@
 'use client'
 
+// Online database version
+
 import { siteData as defaultSiteData } from '@/lib/site-data'
 import { useState, useEffect } from 'react'
 
