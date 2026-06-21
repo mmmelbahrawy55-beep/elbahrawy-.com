@@ -58,6 +58,33 @@ export default function ProductDetails() {
 
   const handleWhatsAppSubmit = () => {
     const totalPrice = calculateTotalPrice()
+    
+    // Save order to siteData
+    let projectDetails = `طلب منتج: ${product?.name}`
+    if (formData.size) projectDetails += ` - ${formData.size}`
+    if (formData.customSize.width && formData.customSize.height) 
+      projectDetails += ` - ${formData.customSize.width}x${formData.customSize.height} ${formData.customSize.unit}`
+    projectDetails += ` - كمية: ${quantity} - تصميم: ${formData.needDesign ? 'منكم' : 'عندي'}`
+    if (formData.notes) projectDetails += ` - ملاحظات: ${formData.notes}`
+    projectDetails += ` - سعر: ${totalPrice} ج.م`
+    
+    const newOrder = {
+      id: Date.now(),
+      name: formData.name,
+      phone: formData.phone,
+      projectDetails,
+      source: 'whatsapp',
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+    }
+    
+    const updatedData = {
+      ...siteData,
+      orders: [...siteData.orders, newOrder],
+    }
+    localStorage.setItem('albahrawy_site_data', JSON.stringify(updatedData))
+    setSiteData(updatedData)
+    
     let message = `طلب جديد للمنتج: ${product?.name}%0A%0A`
     if (formData.size) {
       message += `المقاس المختار: ${formData.size}%0A`

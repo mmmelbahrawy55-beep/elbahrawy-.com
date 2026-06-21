@@ -56,7 +56,28 @@ export default function Home() {
     e.preventDefault()
     setFormStatus('submitting')
 
-    // Simulate successful submission without API
+    // Create new order
+    const newOrder = {
+      id: Date.now(),
+      name: formData.name,
+      phone: formData.phone,
+      projectDetails: formData.projectDetails,
+      source: 'website',
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+    }
+
+    // Update siteData with new order
+    const updatedData = {
+      ...siteData,
+      orders: [...siteData.orders, newOrder],
+    }
+    
+    // Save to localStorage
+    localStorage.setItem('albahrawy_site_data', JSON.stringify(updatedData))
+    setSiteData(updatedData)
+
+    // Simulate successful submission
     setTimeout(() => {
       setFormStatus('success')
       setFormData({ name: '', phone: '', projectDetails: '' })

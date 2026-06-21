@@ -106,6 +106,7 @@ const marketingEmployees: MarketingEmployee[] = [
 ];
 
 const menuItems = [
+  { id: 'orders', name: 'طلبات العملاء', icon: FileText, ai: false },
   { id: 'stats', name: 'احصائيات المنصة', icon: TrendingUp, ai: false },
   { id: 'customers', name: 'سيستم العملاء', icon: Users, ai: false },
   { id: 'suppliers', name: 'سيستم المورّدين', icon: Building2, ai: false },
@@ -461,6 +462,145 @@ export default function DashboardPage() {
 
         {/* Tab Content */}
         <div className="flex-1 overflow-y-auto p-10 space-y-10 custom-scrollbar">
+          
+          {/* 0: Orders Page */}
+          {currentTab === 'orders' && (
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="flex justify-between items-center">
+                <div className="flex gap-4">
+                  <div className="bg-[#0F0F0F] border border-white/5 px-6 py-4 rounded-3xl flex items-center gap-4">
+                    <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">الطلبات</p>
+                    <p className="text-2xl font-black text-[#FFD700]">{siteData.orders?.length || 0}</p>
+                  </div>
+                  <div className="bg-[#0F0F0F] border border-white/5 px-6 py-4 rounded-3xl flex items-center gap-4">
+                    <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">قيد المراجعة</p>
+                    <p className="text-2xl font-black text-yellow-500">
+                      {siteData.orders?.filter((o: any) => o.status === 'pending').length || 0}
+                    </p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => {
+                    // Add a test order
+                    const newOrder = {
+                      id: Date.now(),
+                      name: 'عميل تجريبي',
+                      phone: '01001234567',
+                      projectDetails: 'طلب تجريبي للاختبار',
+                      source: 'whatsapp',
+                      status: 'pending',
+                      createdAt: new Date().toISOString(),
+                    }
+                    const updatedData = {
+                      ...siteData,
+                      orders: [...siteData.orders, newOrder],
+                    }
+                    saveSiteData(updatedData)
+                  }}
+                  className="bg-[#FFD700] text-black px-8 py-4 rounded-2xl font-black shadow-xl shadow-[#FFD700]/20 flex items-center gap-3"
+                >
+                  <Plus className="w-5 h-5" /> إضافة طلب تجريبي
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 gap-6">
+                {!siteData.orders || siteData.orders.length === 0 ? (
+                  <div className="bg-[#0F0F0F] border border-white/5 rounded-[2.5rem] p-10 flex items-center justify-center min-h-[300px]">
+                    <div className="text-center">
+                      <FileText className="w-16 h-16 text-gray-700 mx-auto mb-4" />
+                      <h3 className="text-xl font-bold text-gray-400">لا توجد طلبات بعد</h3>
+                    </div>
+                  </div>
+                ) : (
+                  siteData.orders?.map((order: any) => (
+                    <div key={order.id} className="bg-[#0F0F0F] border border-white/5 rounded-[2.5rem] p-8 hover:border-[#FFD700]/30 transition-all group">
+                      <div className="flex flex-col md:flex-row md:items-center gap-8">
+                        <div className="flex-1 space-y-4">
+                          <div className="flex flex-wrap items-center gap-4">
+                            <h3 className="text-2xl font-black text-white">{order.name}</h3>
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
+                              order.status === 'completed' ? 'bg-green-500/10 text-green-500 border-green-500/20' :
+                              order.status === 'in_progress' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
+                              'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
+                            }`}>
+                              {order.status === 'pending' ? 'قيد المراجعة' :
+                               order.status === 'in_progress' ? 'جاري التنفيذ' :
+                               order.status === 'completed' ? 'مكتمل' : 'ملغى'}
+                            </span>
+                            <span className="px-3 py-1 rounded-full text-xs font-bold border bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/20">
+                              {order.source === 'website' ? 'من الموقع' : 'من واتساب'}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div className="flex items-center gap-2 text-gray-400">
+                              <Phone className="w-4 h-4 text-[#FFD700]" /> 
+                              <input 
+                                value={order.phone} 
+                                onChange={(e) => {
+                                  const updatedOrders = siteData.orders.map((o: any) => 
+                                    o.id === order.id ? { ...o, phone: e.target.value } : o
+                                  )
+                                  saveSiteData({ ...siteData, orders: updatedOrders })
+                                }} 
+                                className="bg-transparent focus:outline-none border-b border-transparent focus:border-[#FFD700]" 
+                              />
+                            </div>
+                            <div className="flex items-center gap-2 text-gray-400">
+                              <Calendar className="w-4 h-4 text-[#FFD700]" /> 
+                              {new Date(order.createdAt).toLocaleDateString('ar-EG', { 
+                                year: 'numeric', month: 'long', day: 'numeric', 
+                                hour: '2-digit', minute: '2-digit' 
+                              })}
+                            </div>
+                          </div>
+                          <div className="p-4 bg-black/40 border border-white/5 rounded-2xl">
+                            <textarea 
+                              value={order.projectDetails} 
+                              onChange={(e) => {
+                                const updatedOrders = siteData.orders.map((o: any) => 
+                                  o.id === order.id ? { ...o, projectDetails: e.target.value } : o
+                                )
+                                saveSiteData({ ...siteData, orders: updatedOrders })
+                              }} 
+                              placeholder="تفاصيل الطلب" 
+                              className="w-full bg-transparent focus:outline-none text-sm resize-none"
+                              rows={3}
+                            />
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-3 min-w-[180px]">
+                          <select 
+                            value={order.status} 
+                            onChange={(e) => {
+                              const updatedOrders = siteData.orders.map((o: any) => 
+                                o.id === order.id ? { ...o, status: e.target.value as any } : o
+                              )
+                              saveSiteData({ ...siteData, orders: updatedOrders })
+                            }} 
+                            className="bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#FFD700]"
+                          >
+                            <option value="pending">قيد المراجعة</option>
+                            <option value="in_progress">جاري التنفيذ</option>
+                            <option value="completed">مكتمل</option>
+                            <option value="cancelled">ملغى</option>
+                          </select>
+                          <button 
+                            onClick={() => {
+                              const updatedOrders = siteData.orders.filter((o: any) => o.id !== order.id)
+                              saveSiteData({ ...siteData, orders: updatedOrders })
+                            }}
+                            className="px-4 py-3 rounded-xl border border-red-500/30 text-red-500 text-sm font-bold hover:bg-red-500/10 transition"
+                          >
+                            <Trash2 className="w-4 h-4 inline mr-2" /> حذف
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
           
           {/* 1: Stats Page */}
           {currentTab === 'stats' && (

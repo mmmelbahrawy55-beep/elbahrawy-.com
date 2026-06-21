@@ -35,8 +35,21 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = () => {
-    // TODO: Implement Google OAuth
-    alert('تسجيل الدخول بجوجل قريباً!');
+    // Mock Google Login (stores user to localStorage)
+    const mockGoogleUser = {
+      id: Date.now(),
+      name: 'مستخدم جوجل',
+      email: 'user@gmail.com',
+      provider: 'google',
+      role: 'admin',
+    };
+    
+    localStorage.setItem('token', 'google-token-' + Date.now());
+    localStorage.setItem('user', JSON.stringify(mockGoogleUser));
+    
+    setTimeout(() => {
+      router.push('/dashboard');
+    }, 500);
   };
 
   return (
