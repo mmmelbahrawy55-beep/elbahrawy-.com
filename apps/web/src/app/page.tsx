@@ -2,11 +2,11 @@
 
 // Online database version
 
-import { siteData as defaultSiteData } from '@/lib/site-data'
+import { siteData as defaultSiteData, SiteData } from '@/lib/site-data'
 import { useState, useEffect } from 'react'
 
 export default function Home() {
-  const [siteData, setSiteData] = useState(defaultSiteData)
+  const [siteData, setSiteData] = useState<SiteData>(defaultSiteData)
   const [activeCategory, setActiveCategory] = useState('all')
 
   useEffect(() => {

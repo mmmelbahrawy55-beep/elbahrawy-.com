@@ -18,12 +18,12 @@ export const metadata: Metadata = {
   description: "البحراوي للدعاية والاعلان - إبداع يفوق الحدود. تميز يصنع التاريخ",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const headersList = headers()
+  const headersList = await headers()
   const pathname = headersList.get('x-pathname') || ''
   const isDashboard = pathname.startsWith('/dashboard')
 

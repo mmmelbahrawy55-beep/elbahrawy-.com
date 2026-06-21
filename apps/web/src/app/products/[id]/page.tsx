@@ -1,13 +1,13 @@
 'use client'
 
-import { siteData as defaultSiteData } from '@/lib/site-data'
+import { siteData as defaultSiteData, SiteData } from '@/lib/site-data'
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 
 export default function ProductDetails() {
   const params = useParams()
   const router = useRouter()
-  const [siteData, setSiteData] = useState(defaultSiteData)
+  const [siteData, setSiteData] = useState<SiteData>(defaultSiteData)
   const [product, setProduct] = useState<any>(null)
   const [currentStep, setCurrentStep] = useState(1)
   const [quantity, setQuantity] = useState(1) // Added quantity state
