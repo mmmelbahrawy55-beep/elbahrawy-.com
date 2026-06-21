@@ -1,5 +1,5 @@
 // ==============================================
-// BROWSER-SAFE EXPORTS (NO NODE.JS MODULES HERE)
+// BROWSER-SAFE DEFAULT DATA
 // ==============================================
 
 export const defaultData = {
@@ -63,51 +63,3 @@ export const defaultData = {
 };
 
 export const siteData = defaultData;
-
-// ==============================================
-// SERVER-ONLY FUNCTIONS (IMPORT NODE.JS MODULES HERE)
-// ==============================================
-
-// Import node modules only in server context
-let prisma: any;
-try {
-  const { prisma: db } = require('@albahrawy/database');
-  prisma = db;
-} catch (e) {
-  // Prisma not available in browser
-}
-
-export async function getSiteData() {
-  try {
-    if (prisma) {
-      const config = await prisma.siteConfig.findUnique({ where: { id: 'current' } });
-      if (config) {
-        return JSON.parse(config.data);
-      }
-    }
-    return defaultData;
-  } catch (error) {
-    console.error('Error getting site data:', error);
-    return defaultData;
-  }
-}
-
-// Backward compatibility - load from file for local dev
-export function loadSiteData() {
-  if (typeof window === 'undefined') {
-    try {
-      const fs = require('fs');
-      const path = require('path');
-      const dataFilePath = path.join(process.cwd(), 'apps', 'web', 'src', 'lib', 'site-data.json');
-      if (fs.existsSync(dataFilePath)) {
-        const fileContent = fs.readFileSync(dataFilePath, 'utf8');
-        return JSON.parse(fileContent);
-      }
-      return defaultData;
-    } catch (error) {
-      console.error('Error loading site data:', error);
-      return defaultData;
-    }
-  }
-  return null;
-}
