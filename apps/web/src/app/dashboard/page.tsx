@@ -1038,10 +1038,10 @@ export default function DashboardPage() {
         </div>
       </main>
 
-      {/* Modals */}
+      {/* Add Customer Modal */}
       {showAddCustomer && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[999] p-6">
-          <div className="bg-[#0F0F0F] border border-white/10 rounded-[3rem] max-w-lg w-full p-10 animate-in zoom-in-95 fade-in duration-300">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[999] p-4">
+          <div className="bg-[#0F0F0F] border border-white/10 rounded-[3rem] max-w-lg w-full p-8 max-h-[90vh] overflow-y-auto custom-scrollbar animate-in zoom-in-95 fade-in duration-300">
             <div className="flex justify-between items-center mb-8">
               <h3 className="text-2xl font-black text-white">إضافة عميل جديد</h3>
               <button onClick={() => setShowAddCustomer(false)} className="text-gray-500 hover:text-white"><X className="w-6 h-6" /></button>
@@ -1061,8 +1061,8 @@ export default function DashboardPage() {
       )}
 
       {showAddSupplier && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[999] p-6">
-          <div className="bg-[#0F0F0F] border border-white/10 rounded-[3rem] max-w-lg w-full p-10 animate-in zoom-in-95 fade-in duration-300">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[999] p-4">
+          <div className="bg-[#0F0F0F] border border-white/10 rounded-[3rem] max-w-lg w-full p-8 max-h-[90vh] overflow-y-auto custom-scrollbar animate-in zoom-in-95 fade-in duration-300">
             <div className="flex justify-between items-center mb-8">
               <h3 className="text-2xl font-black text-white">إضافة مورّد جديد</h3>
               <button onClick={() => setShowAddSupplier(false)} className="text-gray-500 hover:text-white"><X className="w-6 h-6" /></button>
@@ -1083,8 +1083,8 @@ export default function DashboardPage() {
       )}
 
       {showAddCategory && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[999] p-6">
-          <div className="bg-[#0F0F0F] border border-white/10 rounded-[3rem] max-w-2xl w-full p-10 animate-in zoom-in-95 fade-in duration-300">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[999] p-4">
+          <div className="bg-[#0F0F0F] border border-white/10 rounded-[3rem] max-w-2xl w-full p-8 max-h-[90vh] overflow-y-auto custom-scrollbar animate-in zoom-in-95 fade-in duration-300">
             <div className="flex justify-between items-center mb-10">
               <h3 className="text-3xl font-black text-white flex items-center gap-3">
                 <Tag className="text-[#FFD700]" />
@@ -1147,8 +1147,8 @@ export default function DashboardPage() {
       )}
 
       {showEditCategory && editCategoryForm && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[999] p-6">
-          <div className="bg-[#0F0F0F] border border-white/10 rounded-[3rem] max-w-2xl w-full p-10 animate-in zoom-in-95 fade-in duration-300">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[999] p-4">
+          <div className="bg-[#0F0F0F] border border-white/10 rounded-[3rem] max-w-2xl w-full p-8 max-h-[90vh] overflow-y-auto custom-scrollbar animate-in zoom-in-95 fade-in duration-300">
             <div className="flex justify-between items-center mb-10">
               <h3 className="text-3xl font-black text-white flex items-center gap-3">
                 <Edit className="text-[#FFD700]" />
@@ -1211,8 +1211,8 @@ export default function DashboardPage() {
       )}
 
       {showAddProduct && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[999] p-6">
-          <div className="bg-[#0F0F0F] border border-white/10 rounded-[3rem] max-w-4xl w-full p-10 animate-in zoom-in-95 fade-in duration-300 max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[999] p-4">
+          <div className="bg-[#0F0F0F] border border-white/10 rounded-[3rem] max-w-4xl w-full p-8 max-h-[90vh] overflow-y-auto custom-scrollbar animate-in zoom-in-95 fade-in duration-300">
             <div className="flex justify-between items-center mb-10">
               <h3 className="text-3xl font-black text-white flex items-center gap-3">
                 <Package className="text-[#FFD700]" />
@@ -1327,8 +1327,8 @@ export default function DashboardPage() {
       )}
 
       {showEditProduct && editProductForm && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[999] p-6">
-          <div className="bg-[#0F0F0F] border border-white/10 rounded-[3rem] max-w-4xl w-full p-10 animate-in zoom-in-95 fade-in duration-300 max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[999] p-4">
+          <div className="bg-[#0F0F0F] border border-white/10 rounded-[3rem] max-w-4xl w-full p-8 max-h-[90vh] overflow-y-auto custom-scrollbar animate-in zoom-in-95 fade-in duration-300">
             <div className="flex justify-between items-center mb-10">
               <h3 className="text-3xl font-black text-white flex items-center gap-3">
                 <Edit className="text-[#FFD700]" />
@@ -1444,8 +1444,8 @@ export default function DashboardPage() {
 
       {/* Add Portfolio Modal */}
       {showAddPortfolio && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[999] p-6">
-          <div className="bg-[#0F0F0F] border border-white/10 rounded-[3rem] max-w-2xl w-full p-10 animate-in zoom-in-95 fade-in duration-300">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[999] p-4">
+          <div className="bg-[#0F0F0F] border border-white/10 rounded-[3rem] max-w-2xl w-full p-8 max-h-[90vh] overflow-y-auto custom-scrollbar animate-in zoom-in-95 fade-in duration-300">
             <div className="flex justify-between items-center mb-10">
               <h3 className="text-3xl font-black text-white flex items-center gap-3">
                 <Briefcase className="text-[#FFD700]" />
@@ -1519,8 +1519,8 @@ export default function DashboardPage() {
 
       {/* Edit Portfolio Modal */}
       {showEditPortfolio && editPortfolioForm && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[999] p-6">
-          <div className="bg-[#0F0F0F] border border-white/10 rounded-[3rem] max-w-2xl w-full p-10 animate-in zoom-in-95 fade-in duration-300">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[999] p-4">
+          <div className="bg-[#0F0F0F] border border-white/10 rounded-[3rem] max-w-2xl w-full p-8 max-h-[90vh] overflow-y-auto custom-scrollbar animate-in zoom-in-95 fade-in duration-300">
             <div className="flex justify-between items-center mb-10">
               <h3 className="text-3xl font-black text-white flex items-center gap-3">
                 <Edit className="text-[#FFD700]" />
@@ -1594,8 +1594,8 @@ export default function DashboardPage() {
 
       {/* Add Partner Modal */}
       {showAddPartner && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[999] p-6">
-          <div className="bg-[#0F0F0F] border border-white/10 rounded-[3rem] max-w-xl w-full p-10 animate-in zoom-in-95 fade-in duration-300">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[999] p-4">
+          <div className="bg-[#0F0F0F] border border-white/10 rounded-[3rem] max-w-xl w-full p-8 max-h-[90vh] overflow-y-auto custom-scrollbar animate-in zoom-in-95 fade-in duration-300">
             <div className="flex justify-between items-center mb-10">
               <h3 className="text-3xl font-black text-white flex items-center gap-3">
                 <Heart className="text-[#FFD700]" />
@@ -1659,8 +1659,8 @@ export default function DashboardPage() {
 
       {/* Edit Partner Modal */}
       {showEditPartner && editPartnerForm && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[999] p-6">
-          <div className="bg-[#0F0F0F] border border-white/10 rounded-[3rem] max-w-xl w-full p-10 animate-in zoom-in-95 fade-in duration-300">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[999] p-4">
+          <div className="bg-[#0F0F0F] border border-white/10 rounded-[3rem] max-w-xl w-full p-8 max-h-[90vh] overflow-y-auto custom-scrollbar animate-in zoom-in-95 fade-in duration-300">
             <div className="flex justify-between items-center mb-10">
               <h3 className="text-3xl font-black text-white flex items-center gap-3">
                 <Edit className="text-[#FFD700]" />

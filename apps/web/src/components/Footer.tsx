@@ -38,7 +38,7 @@ export default function Footer() {
           </a>
         </div>
         <div className="border-t border-border pt-8 text-center text-muted-foreground text-sm">
-          <p>&copy; 2026 {siteData.companyName}. جميع الحقوق محفوظة.</p>
+          <p dir="rtl">جميع الحقوق محفوظة. © 2026 {siteData.companyName}</p>
         </div>
       </div>
     </footer>
