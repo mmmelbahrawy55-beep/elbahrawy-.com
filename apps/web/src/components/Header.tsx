@@ -11,8 +11,8 @@ export default function Header() {
   return (
     <header className="glass-header">
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-        <Link href="/" className="flex items-center gap-4">
-          <div className="w-16 h-16 flex items-center justify-center">
+        <Link href="/" className="flex items-center gap-2 md:gap-4">
+          <div className="w-10 h-10 md:w-16 md:h-16 flex items-center justify-center">
             <img
               src="https://i.postimg.cc/rp3k0Sh7/albhrawy1.png"
               alt="البحراوي للدعاية والاعلان"
@@ -21,9 +21,9 @@ export default function Header() {
             />
           </div>
           <div className="text-right flex flex-col items-center">
-            <h1 className="text-2xl md:text-3xl font-black tracking-tight leading-tight flex flex-row gap-2" dir="ltr">
+            <h1 className="text-xl md:text-3xl font-black tracking-tight leading-tight flex flex-row gap-2" dir="ltr">
               <span className="text-white">ELBA</span> <span className="text-primary relative inline-block">7RAWY
-                <span className="absolute -bottom-2 left-0 w-full h-1.5 bg-gradient-to-r from-primary via-white/30 to-primary rounded-full shadow-lg shadow-primary/40"></span>
+                <span className="absolute -bottom-1 md:-bottom-2 left-0 w-full h-1 md:h-1.5 bg-gradient-to-r from-primary via-white/30 to-primary rounded-full shadow-lg shadow-primary/40"></span>
               </span>
             </h1>
           </div>
@@ -37,7 +37,7 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-4">
-          <Link href="/login" className="btn-primary">
+          <Link href="/login" className="btn-primary text-sm md:text-base px-6 py-3">
             تسجيل الدخول
           </Link>
         </div>

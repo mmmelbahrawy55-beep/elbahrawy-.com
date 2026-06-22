@@ -88,27 +88,27 @@ export default function Home() {
   return (
     <div className="animate-fade-in">
       {/* Hero Section */}
-      <section id="home" className="min-h-screen flex items-center pt-32 pb-20 overflow-hidden relative bg-gradient-to-br from-background to-card">
+      <section id="home" className="min-h-screen flex items-center pt-32 pb-20 overflow-hidden relative bg-background">
         <div className="container mx-auto px-6 text-center relative z-10">
           <div data-aos="zoom-in" data-aos-duration="1200" className="mb-8 flex flex-col justify-center items-center gap-4">
             <img
               src="https://i.postimg.cc/rp3k0Sh7/albhrawy1.png"
               alt="البحراوي للدعاية والاعلان"
-              className="w-64 md:w-80 h-auto drop-shadow-xl"
+              className="w-40 md:w-64 lg:w-80 h-auto drop-shadow-xl"
               style={{ filter: 'brightness(0) invert(1) saturate(0)' }}
             />
             <div className="flex flex-col items-center">
-              <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-tight flex flex-row gap-2 md:gap-4" dir="ltr">
+              <h1 className="text-4xl md:text-6xl lg:text-8xl font-black tracking-tighter leading-tight flex flex-row gap-2 md:gap-4" dir="ltr">
                 <span className="text-white">ELBA</span> <span className="relative inline-block text-primary">7RAWY
-                  <span className="absolute -bottom-3 left-0 w-full h-2 bg-gradient-to-r from-primary via-white/30 to-primary rounded-full shadow-xl shadow-primary/40"></span>
+                  <span className="absolute -bottom-2 md:-bottom-3 left-0 w-full h-1.5 md:h-2 bg-gradient-to-r from-primary via-white/30 to-primary rounded-full shadow-xl shadow-primary/40"></span>
                 </span>
               </h1>
               <div className="flex flex-col items-center mt-4" dir="ltr">
-                <p className="text-white text-2xl md:text-3xl font-bold tracking-[0.3em] leading-none">ADVERTISING</p>
+                <p className="text-white text-lg md:text-2xl lg:text-3xl font-bold tracking-[0.3em] leading-none">ADVERTISING</p>
               </div>
             </div>
           </div>
-          <p className="text-lg md:text-xl mb-12 text-muted-foreground max-w-2xl mx-auto font-normal">
+          <p className="text-base md:text-lg lg:text-xl mb-12 text-muted-foreground max-w-2xl mx-auto font-normal">
             {siteData.companyName} - إبداع يفوق الحدود. تميز يصنع التاريخ
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-reverse sm:space-x-6">
