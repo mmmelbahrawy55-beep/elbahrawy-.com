@@ -38,7 +38,9 @@ export default function Contact() {
                   </div>
                   <div>
                     <h4 className="font-bold mb-1">العنوان</h4>
-                    <p className="text-muted-foreground">{siteData.location}</p>
+                    <a href={siteData.locationLink} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition">
+                      {siteData.location}
+                    </a>
                   </div>
                 </div>
 

@@ -232,6 +232,7 @@ async function main() {
     "phone": "01120053007",
     "email": "info@albahrawy.com",
     "location": "الزقازيق - القومية - أمام مستشفى المعلمين",
+    "locationLink": "https://maps.app.goo.gl/nuVZfwCNjoJqiVnU8",
     "credentials": {
       "owner": {
         "email": "admin@albahrawy.com",
