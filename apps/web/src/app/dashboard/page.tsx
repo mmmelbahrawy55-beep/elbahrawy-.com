@@ -179,9 +179,22 @@ export default function DashboardPage() {
       return
     }
 
-    // --- Load Saved Data ---
-    const storedData = localStorage.getItem('albahrawy_site_data')
-    if (storedData) setSiteData(JSON.parse(storedData))
+    // --- Load Saved Data from Database First ---
+    const loadData = async () => {
+      try {
+        const res = await fetch('/api/site-data')
+        const data = await res.json()
+        setSiteData(data)
+        // Also sync to localStorage
+        localStorage.setItem('albahrawy_site_data', JSON.stringify(data))
+      } catch (error) {
+        console.error('Error loading data from server, falling back to localStorage:', error)
+        // --- Fallback to Saved Data ---
+        const storedData = localStorage.getItem('albahrawy_site_data')
+        if (storedData) setSiteData(JSON.parse(storedData))
+      }
+    }
+    loadData()
 
     // --- Load API Keys ---
     const storedApiKeys = localStorage.getItem('albahrawy_api_keys')
