@@ -14,9 +14,6 @@ import {
   Power,
   Bell,
   Plus,
-  Search,
-  Brain,
-  MessageSquare,
   Phone,
   Calendar,
   X,
@@ -27,23 +24,14 @@ import {
   Save,
   Image as ImageIcon,
   DollarSign,
-  ExternalLink,
-  Facebook,
-  Instagram,
-  Twitter,
-  Youtube,
-  CheckCircle2,
-  Clock,
   Upload,
   Settings,
   UserPlus,
   FileText,
   Globe,
-  Star,
   Bot
 } from 'lucide-react'
 import { siteData as initialSiteData } from '@/lib/site-data'
-import { apiClient } from '@/lib/api'
 
 // --- Types ---
 interface Customer {
@@ -708,7 +696,7 @@ export default function DashboardPage() {
                           <Trash2 className="w-4 h-4 mx-auto" />
                         </button>
                         <button onClick={() => {
-                          setEditingCustomer(customer)
+                          setEditingCustomer(customer as Partial<Customer>)
                           setShowEditCustomer(true)
                         }} className="bg-[#FFD700]/10 border border-[#FFD700]/20 text-[#FFD700] px-4 py-2 rounded-xl hover:bg-[#FFD700] hover:text-black transition-all">
                           <Edit className="w-4 h-4 mx-auto" />

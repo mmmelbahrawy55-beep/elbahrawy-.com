@@ -3,7 +3,7 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 interface RequestOptions {
-  method?: "GET" | "POST" | "PUT" | "DELETE";
+  method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
   body?: any;
   headers?: Record<string, string>;
 }
@@ -172,66 +172,6 @@ class ApiClient {
     return this.request<any>(`marketing/connections/${id}`, { method: "DELETE" });
   }
 
-  // ==================== CRM ====================
-  async getLeads(params?: any) {
-    const query = new URLSearchParams();
-    if (params) Object.entries(params).forEach(([k, v]) => v && query.set(k, String(v)));
-    return this.request<any>(`crm/leads?${query.toString()}`);
-  }
-
-  async getClients(params?: any) {
-    const query = new URLSearchParams();
-    if (params) Object.entries(params).forEach(([k, v]) => v && query.set(k, String(v)));
-    return this.request<any>(`crm/clients?${query.toString()}`);
-  }
-
-  async getDeals(params?: any) {
-    const query = new URLSearchParams();
-    if (params) Object.entries(params).forEach(([k, v]) => v && query.set(k, String(v)));
-    return this.request<any>(`crm/deals?${query.toString()}`);
-  }
-
-  // ==================== PROJECTS ====================
-  async getProjects(params?: any) {
-    const query = new URLSearchParams();
-    if (params) Object.entries(params).forEach(([k, v]) => v && query.set(k, String(v)));
-    return this.request<any>(`projects?${query.toString()}`);
-  }
-
-  // ==================== CRM ====================
-  async getClients() {
-    return this.request<{ success: boolean; data: any[] }>("crm/clients");
-  }
-
-  async createClient(data: any) {
-    return this.request<{ success: boolean; data: any }>("crm/clients", { method: "POST", body: data });
-  }
-
-  async updateClient(id: string, data: any) {
-    return this.request<{ success: boolean; data: any }>(`crm/clients/${id}`, { method: "PATCH", body: data });
-  }
-
-  async deleteClient(id: string) {
-    return this.request<{ success: boolean; data: any }>(`crm/clients/${id}`, { method: "DELETE" });
-  }
-
-  // Suppliers
-  async getSuppliers() {
-    return this.request<{ success: boolean; data: any[] }>("crm/suppliers");
-  }
-
-  async createSupplier(data: any) {
-    return this.request<{ success: boolean; data: any }>("crm/suppliers", { method: "POST", body: data });
-  }
-
-  async updateSupplier(id: string, data: any) {
-    return this.request<{ success: boolean; data: any }>(`crm/suppliers/${id}`, { method: "PATCH", body: data });
-  }
-
-  async deleteSupplier(id: string) {
-    return this.request<{ success: boolean; data: any }>(`crm/suppliers/${id}`, { method: "DELETE" });
-  }
-
   // ==================== PRODUCTS ====================
   async getProducts() {
     return this.request<any>("products");
@@ -271,5 +211,5 @@ class ApiClient {
   }
 }
 
-export const api = new ApiClient();
-export default api;
+export const apiClient = new ApiClient();
+export default apiClient;
