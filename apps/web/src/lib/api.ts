@@ -198,6 +198,40 @@ class ApiClient {
     return this.request<any>(`projects?${query.toString()}`);
   }
 
+  // ==================== CRM ====================
+  async getClients() {
+    return this.request<{ success: boolean; data: any[] }>("crm/clients");
+  }
+
+  async createClient(data: any) {
+    return this.request<{ success: boolean; data: any }>("crm/clients", { method: "POST", body: data });
+  }
+
+  async updateClient(id: string, data: any) {
+    return this.request<{ success: boolean; data: any }>(`crm/clients/${id}`, { method: "PATCH", body: data });
+  }
+
+  async deleteClient(id: string) {
+    return this.request<{ success: boolean; data: any }>(`crm/clients/${id}`, { method: "DELETE" });
+  }
+
+  // Suppliers
+  async getSuppliers() {
+    return this.request<{ success: boolean; data: any[] }>("crm/suppliers");
+  }
+
+  async createSupplier(data: any) {
+    return this.request<{ success: boolean; data: any }>("crm/suppliers", { method: "POST", body: data });
+  }
+
+  async updateSupplier(id: string, data: any) {
+    return this.request<{ success: boolean; data: any }>(`crm/suppliers/${id}`, { method: "PATCH", body: data });
+  }
+
+  async deleteSupplier(id: string) {
+    return this.request<{ success: boolean; data: any }>(`crm/suppliers/${id}`, { method: "DELETE" });
+  }
+
   // ==================== PRODUCTS ====================
   async getProducts() {
     return this.request<any>("products");

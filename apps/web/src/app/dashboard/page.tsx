@@ -43,10 +43,11 @@ import {
   Bot
 } from 'lucide-react'
 import { siteData as initialSiteData } from '@/lib/site-data'
+import { apiClient } from '@/lib/api'
 
 // --- Types ---
 interface Customer {
-  id: number;
+  id: string;
   name: string;
   phone: string;
   projectDetails: string;
@@ -58,7 +59,7 @@ interface Customer {
 }
 
 interface Supplier {
-  id: number;
+  id: string;
   companyName: string;
   contactPerson: string;
   phone: string;
@@ -132,7 +133,9 @@ export default function DashboardPage() {
     stripe: ''
   })
   const [showAddCustomer, setShowAddCustomer] = useState(false)
+  const [showEditCustomer, setShowEditCustomer] = useState(false)
   const [showAddSupplier, setShowAddSupplier] = useState(false)
+  const [showEditSupplier, setShowEditSupplier] = useState(false)
   const [showAddCategory, setShowAddCategory] = useState(false)
   const [showEditCategory, setShowEditCategory] = useState<any>(null)
   const [showAddProduct, setShowAddProduct] = useState(false)
@@ -148,7 +151,9 @@ export default function DashboardPage() {
 
   // --- State for Forms ---
   const [newCustomer, setNewCustomer] = useState<Partial<Customer>>({})
+  const [editingCustomer, setEditingCustomer] = useState<Partial<Customer>>({})
   const [newSupplier, setNewSupplier] = useState<Partial<Supplier>>({})
+  const [editingSupplier, setEditingSupplier] = useState<Partial<Supplier>>({})
   const [newCategory, setNewCategory] = useState<Partial<{ id: number; name: string; image: string }>>({})
   const [editCategoryForm, setEditCategoryForm] = useState<any>(null)
   const [newProduct, setNewProduct] = useState<Partial<{
@@ -190,6 +195,21 @@ export default function DashboardPage() {
     const storedApiKeys = localStorage.getItem('albahrawy_api_keys')
     if (storedApiKeys) setApiKeys(JSON.parse(storedApiKeys))
 
+    // --- Fetch Data from API ---
+    const fetchData = async () => {
+      try {
+        const [clientsRes, suppliersRes] = await Promise.all([
+          apiClient.getClients(),
+          apiClient.getSuppliers()
+        ])
+        if (clientsRes.success) setCustomers(clientsRes.data)
+        if (suppliersRes.success) setSuppliers(suppliersRes.data)
+      } catch (error) {
+        console.error('Error fetching data from API:', error)
+      }
+    }
+    fetchData()
+
     setIsLoggedIn(true)
     setLoading(false)
   }, [])
@@ -217,12 +237,10 @@ export default function DashboardPage() {
 
   const saveCustomers = (newCustomers: Customer[]) => {
     setCustomers(newCustomers)
-    localStorage.setItem('albahrawy_customers', JSON.stringify(newCustomers))
   }
 
   const saveSuppliers = (newSuppliers: Supplier[]) => {
     setSuppliers(newSuppliers)
-    localStorage.setItem('albahrawy_suppliers', JSON.stringify(newSuppliers))
   }
 
   const handleLogout = () => {
@@ -232,72 +250,94 @@ export default function DashboardPage() {
   }
 
   // --- Handlers ---
-  const addCustomer = () => {
-    const customer: Customer = {
-      id: Date.now(),
-      name: newCustomer.name || '',
-      phone: newCustomer.phone || '',
-      projectDetails: newCustomer.projectDetails || '',
-      orderDate: new Date().toISOString().split('T')[0],
-      totalAmount: newCustomer.totalAmount || 0,
-      paidAmount: newCustomer.paidAmount || 0,
-      remainingAmount: (newCustomer.totalAmount || 0) - (newCustomer.paidAmount || 0),
-      status: 'pending'
-    }
-    saveCustomers([...customers, customer])
-    setNewCustomer({})
-    setShowAddCustomer(false)
-  }
-
-  const deleteCustomer = (id: number) => {
-    saveCustomers(customers.filter(c => c.id !== id))
-  }
-
-  const updateCustomer = (id: number, data: Partial<Customer>) => {
-    saveCustomers(customers.map(c => {
-      if (c.id === id) {
-        const updated = { ...c, ...data }
-        if (data.totalAmount !== undefined || data.paidAmount !== undefined) {
-          updated.remainingAmount = (updated.totalAmount || 0) - (updated.paidAmount || 0)
-        }
-        return updated
+  const addCustomer = async () => {
+    try {
+      const customerData = {
+        name: newCustomer.name || '',
+        phone: newCustomer.phone || '',
+        projectDetails: newCustomer.projectDetails || '',
+        totalAmount: newCustomer.totalAmount || 0,
+        paidAmount: newCustomer.paidAmount || 0,
+        status: 'pending'
       }
-      return c
-    }))
-  }
-
-  const addSupplier = () => {
-    const supplier: Supplier = {
-      id: Date.now(),
-      companyName: newSupplier.companyName || '',
-      contactPerson: newSupplier.contactPerson || '',
-      phone: newSupplier.phone || '',
-      orderDetails: newSupplier.orderDetails || '',
-      orderDate: new Date().toISOString().split('T')[0],
-      totalAmount: newSupplier.totalAmount || 0,
-      paidAmount: newSupplier.paidAmount || 0,
-      remainingAmount: (newSupplier.totalAmount || 0) - (newSupplier.paidAmount || 0)
-    }
-    saveSuppliers([...suppliers, supplier])
-    setNewSupplier({})
-    setShowAddSupplier(false)
-  }
-
-  const deleteSupplier = (id: number) => {
-    saveSuppliers(suppliers.filter(s => s.id !== id))
-  }
-
-  const updateSupplier = (id: number, data: Partial<Supplier>) => {
-    saveSuppliers(suppliers.map(s => {
-      if (s.id === id) {
-        const updated = { ...s, ...data }
-        if (data.totalAmount !== undefined || data.paidAmount !== undefined) {
-          updated.remainingAmount = (updated.totalAmount || 0) - (updated.paidAmount || 0)
-        }
-        return updated
+      const res = await apiClient.createClient(customerData)
+      if (res.success) {
+        setCustomers([res.data, ...customers])
+        setNewCustomer({})
+        setShowAddCustomer(false)
       }
-      return s
-    }))
+    } catch (error) {
+      console.error('Error adding customer:', error)
+    }
+  }
+
+  const deleteCustomer = async (id: string) => {
+    try {
+      const res = await apiClient.deleteClient(id)
+      if (res.success) {
+        setCustomers(customers.filter(c => c.id !== id))
+      }
+    } catch (error) {
+      console.error('Error deleting customer:', error)
+    }
+  }
+
+  const updateCustomer = async (id: string, data: Partial<Customer>) => {
+    try {
+      const res = await apiClient.updateClient(id, data)
+      if (res.success) {
+        setCustomers(customers.map(c => c.id === id ? res.data : c))
+        setShowEditCustomer(false)
+        setEditingCustomer({})
+      }
+    } catch (error) {
+      console.error('Error updating customer:', error)
+    }
+  }
+
+  const addSupplier = async () => {
+    try {
+      const supplierData = {
+        companyName: newSupplier.companyName || '',
+        contactPerson: newSupplier.contactPerson || '',
+        phone: newSupplier.phone || '',
+        orderDetails: newSupplier.orderDetails || '',
+        totalAmount: newSupplier.totalAmount || 0,
+        paidAmount: newSupplier.paidAmount || 0
+      }
+      const res = await apiClient.createSupplier(supplierData)
+      if (res.success) {
+        setSuppliers([res.data, ...suppliers])
+        setNewSupplier({})
+        setShowAddSupplier(false)
+      }
+    } catch (error) {
+      console.error('Error adding supplier:', error)
+    }
+  }
+
+  const deleteSupplier = async (id: string) => {
+    try {
+      const res = await apiClient.deleteSupplier(id)
+      if (res.success) {
+        setSuppliers(suppliers.filter(s => s.id !== id))
+      }
+    } catch (error) {
+      console.error('Error deleting supplier:', error)
+    }
+  }
+
+  const updateSupplier = async (id: string, data: Partial<Supplier>) => {
+    try {
+      const res = await apiClient.updateSupplier(id, data)
+      if (res.success) {
+        setSuppliers(suppliers.map(s => s.id === id ? res.data : s))
+        setShowEditSupplier(false)
+        setEditingSupplier({})
+      }
+    } catch (error) {
+      console.error('Error updating supplier:', error)
+    }
   }
 
   const sendMessage = async () => {
@@ -699,6 +739,12 @@ export default function DashboardPage() {
                         <button onClick={() => deleteCustomer(customer.id)} className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-2 rounded-xl hover:bg-red-500 hover:text-white transition-all">
                           <Trash2 className="w-4 h-4 mx-auto" />
                         </button>
+                        <button onClick={() => {
+                          setEditingCustomer(customer)
+                          setShowEditCustomer(true)
+                        }} className="bg-[#FFD700]/10 border border-[#FFD700]/20 text-[#FFD700] px-4 py-2 rounded-xl hover:bg-[#FFD700] hover:text-black transition-all">
+                          <Edit className="w-4 h-4 mx-auto" />
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -750,6 +796,12 @@ export default function DashboardPage() {
                         </div>
                         <button onClick={() => deleteSupplier(supplier.id)} className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-2 rounded-xl hover:bg-red-500 hover:text-white transition-all">
                           <Trash2 className="w-4 h-4 mx-auto" />
+                        </button>
+                        <button onClick={() => {
+                          setEditingSupplier(supplier)
+                          setShowEditSupplier(true)
+                        }} className="bg-[#FFD700]/10 border border-[#FFD700]/20 text-[#FFD700] px-4 py-2 rounded-xl hover:bg-[#FFD700] hover:text-black transition-all">
+                          <Edit className="w-4 h-4 mx-auto" />
                         </button>
                       </div>
                     </div>
@@ -1224,6 +1276,72 @@ export default function DashboardPage() {
                 <input type="number" placeholder="المدفوع" value={newSupplier.paidAmount || ''} onChange={(e) => setNewSupplier({ ...newSupplier, paidAmount: Number(e.target.value) })} className="bg-black/50 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-[#FFD700]" />
               </div>
               <button onClick={addSupplier} className="w-full bg-[#FFD700] text-black py-4 rounded-2xl font-black text-lg hover:scale-105 transition">إضافة المورّد</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Customer Modal */}
+      {showEditCustomer && editingCustomer && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[999] p-4">
+          <div className="bg-[#0F0F0F] border border-white/10 rounded-[3rem] max-w-lg w-full p-8 max-h-[90vh] overflow-y-auto custom-scrollbar animate-in zoom-in-95 fade-in duration-300">
+            <div className="flex justify-between items-center mb-8">
+              <h3 className="text-2xl font-black text-white">تعديل بيانات العميل</h3>
+              <button onClick={() => setShowEditCustomer(false)} className="text-gray-500 hover:text-white"><X className="w-6 h-6" /></button>
+            </div>
+            <div className="space-y-6">
+              <input placeholder="اسم العميل" value={editingCustomer.name || ''} onChange={(e) => setEditingCustomer({ ...editingCustomer, name: e.target.value })} className="w-full bg-black/50 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-[#FFD700]" />
+              <input placeholder="رقم الهاتف" value={editingCustomer.phone || ''} onChange={(e) => setEditingCustomer({ ...editingCustomer, phone: e.target.value })} className="w-full bg-black/50 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-[#FFD700]" />
+              <textarea placeholder="تفاصيل الطلب" value={editingCustomer.projectDetails || ''} onChange={(e) => setEditingCustomer({ ...editingCustomer, projectDetails: e.target.value })} className="w-full bg-black/50 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-[#FFD700] min-h-[100px]" />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs text-gray-500">الإجمالي</label>
+                  <input type="number" placeholder="الإجمالي" value={editingCustomer.totalAmount || ''} onChange={(e) => setEditingCustomer({ ...editingCustomer, totalAmount: Number(e.target.value) })} className="w-full bg-black/50 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-[#FFD700]" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs text-gray-500">المدفوع</label>
+                  <input type="number" placeholder="المدفوع" value={editingCustomer.paidAmount || ''} onChange={(e) => setEditingCustomer({ ...editingCustomer, paidAmount: Number(e.target.value) })} className="w-full bg-black/50 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-[#FFD700]" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs text-gray-500">الحالة</label>
+                <select value={editingCustomer.status} onChange={(e) => setEditingCustomer({ ...editingCustomer, status: e.target.value as any })} className="w-full bg-black/50 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-[#FFD700]">
+                  <option value="pending">قيد المراجعة</option>
+                  <option value="in_progress">جاري التنفيذ</option>
+                  <option value="completed">مكتمل</option>
+                  <option value="cancelled">ملغى</option>
+                </select>
+              </div>
+              <button onClick={() => updateCustomer(editingCustomer.id!, editingCustomer)} className="w-full bg-[#FFD700] text-black py-4 rounded-2xl font-black text-lg hover:scale-105 transition">حفظ التعديلات</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Supplier Modal */}
+      {showEditSupplier && editingSupplier && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[999] p-4">
+          <div className="bg-[#0F0F0F] border border-white/10 rounded-[3rem] max-w-lg w-full p-8 max-h-[90vh] overflow-y-auto custom-scrollbar animate-in zoom-in-95 fade-in duration-300">
+            <div className="flex justify-between items-center mb-8">
+              <h3 className="text-2xl font-black text-white">تعديل بيانات المورّد</h3>
+              <button onClick={() => setShowEditSupplier(false)} className="text-gray-500 hover:text-white"><X className="w-6 h-6" /></button>
+            </div>
+            <div className="space-y-6">
+              <input placeholder="اسم الشركة" value={editingSupplier.companyName || ''} onChange={(e) => setEditingSupplier({ ...editingSupplier, companyName: e.target.value })} className="w-full bg-black/50 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-[#FFD700]" />
+              <input placeholder="المسؤول" value={editingSupplier.contactPerson || ''} onChange={(e) => setEditingSupplier({ ...editingSupplier, contactPerson: e.target.value })} className="w-full bg-black/50 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-[#FFD700]" />
+              <input placeholder="رقم الهاتف" value={editingSupplier.phone || ''} onChange={(e) => setEditingSupplier({ ...editingSupplier, phone: e.target.value })} className="w-full bg-black/50 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-[#FFD700]" />
+              <textarea placeholder="طلبنا منهم" value={editingSupplier.orderDetails || ''} onChange={(e) => setEditingSupplier({ ...editingSupplier, orderDetails: e.target.value })} className="w-full bg-black/50 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-[#FFD700] min-h-[100px]" />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs text-gray-500">الإجمالي</label>
+                  <input type="number" placeholder="الإجمالي" value={editingSupplier.totalAmount || ''} onChange={(e) => setEditingSupplier({ ...editingSupplier, totalAmount: Number(e.target.value) })} className="w-full bg-black/50 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-[#FFD700]" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs text-gray-500">المدفوع</label>
+                  <input type="number" placeholder="المدفوع" value={editingSupplier.paidAmount || ''} onChange={(e) => setEditingSupplier({ ...editingSupplier, paidAmount: Number(e.target.value) })} className="w-full bg-black/50 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-[#FFD700]" />
+                </div>
+              </div>
+              <button onClick={() => updateSupplier(editingSupplier.id!, editingSupplier)} className="w-full bg-[#FFD700] text-black py-4 rounded-2xl font-black text-lg hover:scale-105 transition">حفظ التعديلات</button>
             </div>
           </div>
         </div>

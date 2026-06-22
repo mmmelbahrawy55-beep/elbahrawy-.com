@@ -101,14 +101,16 @@ model Automation {
 model Client {
   id          String   @id @default(cuid())
   name        String
-  email       String   @unique
+  email       String?  @unique
   phone       String?
   company     String?
   address     String?
-  totalOrders Int      @default(0)
-  totalSpent  Decimal  @default(0)
-  status      String   @default("Active") // Active | Inactive | VIP
-  notes       String?
+  projectDetails String?
+  totalAmount Decimal  @default(0)
+  paidAmount  Decimal  @default(0)
+  remainingAmount Decimal @default(0)
+  status      String   @default("pending") // pending | in_progress | completed | cancelled
+  orderDate   DateTime @default(now())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   deletedAt   DateTime?
@@ -117,7 +119,23 @@ model Client {
   invoices Invoice[]
 
   @@index([deletedAt])
-  @@index([email])
+}
+
+model Supplier {
+  id            String   @id @default(cuid())
+  companyName   String
+  contactPerson String?
+  phone         String?
+  orderDetails  String?
+  orderDate     DateTime @default(now())
+  totalAmount   Decimal  @default(0)
+  paidAmount    Decimal  @default(0)
+  remainingAmount Decimal @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  deletedAt     DateTime?
+
+  @@index([deletedAt])
 }
 
 model Request {
