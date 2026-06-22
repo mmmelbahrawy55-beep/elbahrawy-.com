@@ -18,3 +18,20 @@ export async function GET() {
     return NextResponse.json(defaultData)
   }
 }
+
+export async function POST(request: Request) {
+  try {
+    const data = await request.json()
+    
+    const config = await prisma.siteConfig.upsert({
+      where: { id: 'current' },
+      update: { data: JSON.stringify(data) },
+      create: { id: 'current', data: JSON.stringify(data) }
+    })
+    
+    return NextResponse.json({ success: true, data: JSON.parse(config.data) })
+  } catch (error) {
+    console.error('Error saving site data:', error)
+    return NextResponse.json({ success: false, error: 'Failed to save data' }, { status: 500 })
+  }
+}

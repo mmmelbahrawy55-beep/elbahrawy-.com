@@ -203,7 +203,7 @@ export default function DashboardPage() {
     
     // Save to server for online persistence
     try {
-      const response = await fetch('/api/save-data', {
+      const response = await fetch('/api/site-data', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newData),
