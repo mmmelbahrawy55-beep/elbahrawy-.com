@@ -32,32 +32,6 @@ export class CrmController {
     return { success: true, data: await this.service.deleteClient(id) };
   }
 
-  // ===== SUPPLIERS =====
-  @Get("suppliers")
-  async suppliers() {
-    return { success: true, data: await this.service.findAllSuppliers() };
-  }
-
-  @Get("suppliers/:id")
-  async supplier(@Param("id") id: string) {
-    return { success: true, data: await this.service.findOneSupplier(id) };
-  }
-
-  @Post("suppliers")
-  async createSupplier(@Body() body: any) {
-    return { success: true, data: await this.service.createSupplier(body) };
-  }
-
-  @Patch("suppliers/:id")
-  async updateSupplier(@Param("id") id: string, @Body() body: any) {
-    return { success: true, data: await this.service.updateSupplier(id, body) };
-  }
-
-  @Delete("suppliers/:id")
-  async deleteSupplier(@Param("id") id: string) {
-    return { success: true, data: await this.service.deleteSupplier(id) };
-  }
-
   @Get("deals")
   async deals() {
     return { success: true, data: await this.service.findAllDeals() };

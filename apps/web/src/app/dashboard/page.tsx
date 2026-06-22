@@ -29,7 +29,11 @@ import {
   UserPlus,
   FileText,
   Globe,
-  Bot
+  Bot,
+  Facebook,
+  Instagram,
+  Twitter,
+  Youtube
 } from 'lucide-react'
 import { siteData as initialSiteData } from '@/lib/site-data'
 
