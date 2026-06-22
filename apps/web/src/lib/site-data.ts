@@ -54,6 +54,8 @@ export interface SiteData {
   services: { title: string; description: string; icon: string }[];
   blog: any[];
   orders: Order[];
+  customers: { id: number; name: string; phone: string; projectDetails: string; orderDate: string; totalAmount: number; paidAmount: number; remainingAmount: number; status: string }[];
+  suppliers: { id: number; companyName: string; contactPerson: string; phone: string; orderDetails: string; orderDate: string; totalAmount: number; paidAmount: number; remainingAmount: number }[];
 }
 
 export const defaultData: SiteData = {
@@ -117,7 +119,9 @@ export const defaultData: SiteData = {
     { title: "تسويق رقمي", description: "حلول تسويقية متكاملة", icon: "fa-bullhorn" }
   ],
   blog: [],
-  orders: []
+  orders: [],
+  customers: [],
+  suppliers: []
 };
 
 export const siteData = defaultData;

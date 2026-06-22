@@ -284,7 +284,9 @@ async function main() {
       { "title": "حفر ليزر", "description": "حفر دقيق على جميع المواد", "icon": "fa-laser" },
       { "title": "تسويق رقمي", "description": "حلول تسويقية متكاملة", "icon": "fa-bullhorn" }
     ],
-    "blog": []
+    "blog": [],
+    "customers": [],
+    "suppliers": []
   };
 
   await prisma.siteConfig.upsert({

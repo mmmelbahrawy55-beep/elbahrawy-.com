@@ -47,7 +47,7 @@ import { apiClient } from '@/lib/api'
 
 // --- Types ---
 interface Customer {
-  id: string;
+  id: number;
   name: string;
   phone: string;
   projectDetails: string;
@@ -59,7 +59,7 @@ interface Customer {
 }
 
 interface Supplier {
-  id: string;
+  id: number;
   companyName: string;
   contactPerson: string;
   phone: string;
@@ -123,8 +123,6 @@ export default function DashboardPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [loading, setLoading] = useState(true)
   const [siteData, setSiteData] = useState(initialSiteData)
-  const [customers, setCustomers] = useState<Customer[]>([])
-  const [suppliers, setSuppliers] = useState<Supplier[]>([])
   const [apiKeys, setApiKeys] = useState({
     openai: '',
     whatsapp: '',
@@ -185,30 +183,9 @@ export default function DashboardPage() {
     const storedData = localStorage.getItem('albahrawy_site_data')
     if (storedData) setSiteData(JSON.parse(storedData))
 
-    const storedCustomers = localStorage.getItem('albahrawy_customers')
-    if (storedCustomers) setCustomers(JSON.parse(storedCustomers))
-
-    const storedSuppliers = localStorage.getItem('albahrawy_suppliers')
-    if (storedSuppliers) setSuppliers(JSON.parse(storedSuppliers))
-
     // --- Load API Keys ---
     const storedApiKeys = localStorage.getItem('albahrawy_api_keys')
     if (storedApiKeys) setApiKeys(JSON.parse(storedApiKeys))
-
-    // --- Fetch Data from API ---
-    const fetchData = async () => {
-      try {
-        const [clientsRes, suppliersRes] = await Promise.all([
-          apiClient.getClients(),
-          apiClient.getSuppliers()
-        ])
-        if (clientsRes.success) setCustomers(clientsRes.data)
-        if (suppliersRes.success) setSuppliers(suppliersRes.data)
-      } catch (error) {
-        console.error('Error fetching data from API:', error)
-      }
-    }
-    fetchData()
 
     setIsLoggedIn(true)
     setLoading(false)
@@ -235,13 +212,7 @@ export default function DashboardPage() {
     }
   }
 
-  const saveCustomers = (newCustomers: Customer[]) => {
-    setCustomers(newCustomers)
-  }
 
-  const saveSuppliers = (newSuppliers: Supplier[]) => {
-    setSuppliers(newSuppliers)
-  }
 
   const handleLogout = () => {
     localStorage.removeItem('user')
@@ -250,94 +221,78 @@ export default function DashboardPage() {
   }
 
   // --- Handlers ---
-  const addCustomer = async () => {
-    try {
-      const customerData = {
-        name: newCustomer.name || '',
-        phone: newCustomer.phone || '',
-        projectDetails: newCustomer.projectDetails || '',
-        totalAmount: newCustomer.totalAmount || 0,
-        paidAmount: newCustomer.paidAmount || 0,
-        status: 'pending'
-      }
-      const res = await apiClient.createClient(customerData)
-      if (res.success) {
-        setCustomers([res.data, ...customers])
-        setNewCustomer({})
-        setShowAddCustomer(false)
-      }
-    } catch (error) {
-      console.error('Error adding customer:', error)
+  const addCustomer = () => {
+    const customer: Customer = {
+      id: Date.now(),
+      name: newCustomer.name || '',
+      phone: newCustomer.phone || '',
+      projectDetails: newCustomer.projectDetails || '',
+      orderDate: new Date().toISOString().split('T')[0],
+      totalAmount: newCustomer.totalAmount || 0,
+      paidAmount: newCustomer.paidAmount || 0,
+      remainingAmount: (newCustomer.totalAmount || 0) - (newCustomer.paidAmount || 0),
+      status: 'pending'
     }
+    saveSiteData({ ...siteData, customers: [customer, ...(siteData.customers || [])]})
+    setNewCustomer({})
+    setShowAddCustomer(false)
   }
 
-  const deleteCustomer = async (id: string) => {
-    try {
-      const res = await apiClient.deleteClient(id)
-      if (res.success) {
-        setCustomers(customers.filter(c => c.id !== id))
-      }
-    } catch (error) {
-      console.error('Error deleting customer:', error)
-    }
+  const deleteCustomer = (id: number) => {
+    saveSiteData({ ...siteData, customers: (siteData.customers || []).filter(c => c.id !== id)})
   }
 
-  const updateCustomer = async (id: string, data: Partial<Customer>) => {
-    try {
-      const res = await apiClient.updateClient(id, data)
-      if (res.success) {
-        setCustomers(customers.map(c => c.id === id ? res.data : c))
-        setShowEditCustomer(false)
-        setEditingCustomer({})
+  const updateCustomer = (id: number, data: Partial<Customer>) => {
+    const updatedCustomers = (siteData.customers || []).map(c => {
+      if (c.id === id) {
+        const updated = { ...c, ...data }
+        if (data.totalAmount !== undefined || data.paidAmount !== undefined) {
+          updated.remainingAmount = (updated.totalAmount || 0) - (updated.paidAmount || 0)
+        }
+        return updated
       }
-    } catch (error) {
-      console.error('Error updating customer:', error)
-    }
+      return c
+    })
+    saveSiteData({ ...siteData, customers: updatedCustomers})
+    setShowEditCustomer(false)
+    setEditingCustomer({})
   }
 
-  const addSupplier = async () => {
-    try {
-      const supplierData = {
-        companyName: newSupplier.companyName || '',
-        contactPerson: newSupplier.contactPerson || '',
-        phone: newSupplier.phone || '',
-        orderDetails: newSupplier.orderDetails || '',
-        totalAmount: newSupplier.totalAmount || 0,
-        paidAmount: newSupplier.paidAmount || 0
-      }
-      const res = await apiClient.createSupplier(supplierData)
-      if (res.success) {
-        setSuppliers([res.data, ...suppliers])
-        setNewSupplier({})
-        setShowAddSupplier(false)
-      }
-    } catch (error) {
-      console.error('Error adding supplier:', error)
+  const addSupplier = () => {
+    const supplier: Supplier = {
+      id: Date.now(),
+      companyName: newSupplier.companyName || '',
+      contactPerson: newSupplier.contactPerson || '',
+      phone: newSupplier.phone || '',
+      orderDetails: newSupplier.orderDetails || '',
+      orderDate: new Date().toISOString().split('T')[0],
+      totalAmount: newSupplier.totalAmount || 0,
+      paidAmount: newSupplier.paidAmount || 0,
+      remainingAmount: (newSupplier.totalAmount || 0) - (newSupplier.paidAmount || 0)
     }
+    saveSiteData({ ...siteData, suppliers: [supplier, ...(siteData.suppliers || [])]})
+    setNewSupplier({})
+    setShowAddSupplier(false)
   }
 
-  const deleteSupplier = async (id: string) => {
-    try {
-      const res = await apiClient.deleteSupplier(id)
-      if (res.success) {
-        setSuppliers(suppliers.filter(s => s.id !== id))
-      }
-    } catch (error) {
-      console.error('Error deleting supplier:', error)
-    }
+  const deleteSupplier = (id: number) => {
+    saveSiteData({ ...siteData, suppliers: (siteData.suppliers || []).filter(s => s.id !== id)})
   }
 
-  const updateSupplier = async (id: string, data: Partial<Supplier>) => {
-    try {
-      const res = await apiClient.updateSupplier(id, data)
-      if (res.success) {
-        setSuppliers(suppliers.map(s => s.id === id ? res.data : s))
-        setShowEditSupplier(false)
-        setEditingSupplier({})
+  const updateSupplier = (id: number, data: Partial<Supplier>) => {
+    const updatedSuppliers = (siteData.suppliers || []).map(s => {
+      if (s.id === id) {
+        const updated = { ...s, ...data }
+        if (data.totalAmount !== undefined || data.paidAmount !== undefined) {
+          updated.remainingAmount = (updated.totalAmount || 0) - (updated.paidAmount || 0)
+        }
+        return updated
       }
-    } catch (error) {
-      console.error('Error updating supplier:', error)
-    }
+      return s
+    })
+    saveSiteData({ ...siteData, suppliers: updatedSuppliers})
+    setShowEditSupplier(false)
+    setEditingSupplier({})
   }
 
   const sendMessage = async () => {
@@ -426,9 +381,9 @@ export default function DashboardPage() {
   if (loading) return null
 
   // --- Stats Helpers ---
-  const totalRevenue = customers.reduce((sum, c) => sum + (c.paidAmount || 0), 0)
-  const pendingAmount = customers.reduce((sum, c) => sum + (c.remainingAmount || 0), 0)
-  const activeProjects = customers.filter(c => c.status === 'in_progress').length
+  const totalRevenue = (siteData.customers || []).reduce((sum, c) => sum + (c.paidAmount || 0), 0)
+  const pendingAmount = (siteData.customers || []).reduce((sum, c) => sum + (c.remainingAmount || 0), 0)
+  const activeProjects = (siteData.customers || []).filter(c => c.status === 'in_progress').length
 
   return (
     <div className="flex h-screen bg-[#050505] text-white overflow-hidden font-cairo">
@@ -656,7 +611,7 @@ export default function DashboardPage() {
                 {[
                   { label: 'إجمالي الإيرادات', value: `${totalRevenue.toLocaleString()} ج.م`, trend: '+15%', up: true, icon: TrendingUp, color: 'text-green-500' },
                   { label: 'المبالغ المتبقية', value: `${pendingAmount.toLocaleString()} ج.م`, trend: '-2%', up: false, icon: DollarSign, color: 'text-red-500' },
-                  { label: 'عدد العملاء', value: customers.length, trend: '+5', up: true, icon: Users, color: 'text-blue-500' },
+                  { label: 'عدد العملاء', value: (siteData.customers || []).length, trend: '+5', up: true, icon: Users, color: 'text-blue-500' },
                   { label: 'المشاريع النشطة', value: activeProjects, trend: 'جاري', up: true, icon: Briefcase, color: 'text-purple-500' },
                 ].map((stat, i) => (
                   <div key={i} className="bg-[#0F0F0F] border border-white/5 rounded-3xl p-8 group relative overflow-hidden hover:border-[#FFD700]/40 transition-all duration-500 hover:-translate-y-1">
@@ -688,7 +643,7 @@ export default function DashboardPage() {
                 <div className="flex gap-4">
                   <div className="bg-[#0F0F0F] border border-white/5 px-6 py-4 rounded-3xl flex items-center gap-4">
                     <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">العملاء</p>
-                    <p className="text-2xl font-black text-[#FFD700]">{customers.length}</p>
+                    <p className="text-2xl font-black text-[#FFD700]">{(siteData.customers || []).length}</p>
                   </div>
                 </div>
                 <button onClick={() => setShowAddCustomer(true)} className="bg-[#FFD700] text-black px-8 py-4 rounded-2xl font-black shadow-xl shadow-[#FFD700]/20 flex items-center gap-3">
@@ -697,7 +652,7 @@ export default function DashboardPage() {
               </div>
               
               <div className="grid grid-cols-1 gap-6">
-                {customers.map(customer => (
+                {(siteData.customers || []).map(customer => (
                   <div key={customer.id} className="bg-[#0F0F0F] border border-white/5 rounded-[2.5rem] p-8 hover:border-[#FFD700]/30 transition-all group">
                     <div className="flex flex-col md:flex-row md:items-center gap-8">
                       <div className="flex-1 space-y-4">
@@ -749,7 +704,7 @@ export default function DashboardPage() {
                     </div>
                   </div>
                 ))}
-                {customers.length === 0 && <div className="text-center py-32 text-gray-500">لا يوجد عملاء بعد، اضف أول عميل</div>}
+                {(siteData.customers || []).length === 0 && <div className="text-center py-32 text-gray-500">لا يوجد عملاء بعد، اضف أول عميل</div>}
               </div>
             </div>
           )}
@@ -761,7 +716,7 @@ export default function DashboardPage() {
                 <div className="flex gap-4">
                   <div className="bg-[#0F0F0F] border border-white/5 px-6 py-4 rounded-3xl flex items-center gap-4">
                     <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">المورّدين</p>
-                    <p className="text-2xl font-black text-[#FFD700]">{suppliers.length}</p>
+                    <p className="text-2xl font-black text-[#FFD700]">{(siteData.suppliers || []).length}</p>
                   </div>
                 </div>
                 <button onClick={() => setShowAddSupplier(true)} className="bg-[#FFD700] text-black px-8 py-4 rounded-2xl font-black shadow-xl shadow-[#FFD700]/20 flex items-center gap-3">
@@ -769,7 +724,7 @@ export default function DashboardPage() {
                 </button>
               </div>
               <div className="grid grid-cols-1 gap-6">
-                {suppliers.map(supplier => (
+                {(siteData.suppliers || []).map(supplier => (
                   <div key={supplier.id} className="bg-[#0F0F0F] border border-white/5 rounded-[2.5rem] p-8 hover:border-[#FFD700]/30 transition-all">
                     <div className="flex flex-col md:flex-row md:items-center gap-8">
                       <div className="flex-1 space-y-4">
@@ -807,7 +762,7 @@ export default function DashboardPage() {
                     </div>
                   </div>
                 ))}
-                {suppliers.length === 0 && <div className="text-center py-32 text-gray-500">لا يوجد مورّدين بعد</div>}
+                {(siteData.suppliers || []).length === 0 && <div className="text-center py-32 text-gray-500">لا يوجد مورّدين بعد</div>}
               </div>
             </div>
           )}
