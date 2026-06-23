@@ -5,6 +5,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import FloatingButtons from '@/components/FloatingButtons'
 import AOSInitializer from '@/components/AOSInitializer'
+import { ToastContainer } from '@/components/Toast'
 import { headers } from 'next/headers'
 
 const cairo = Cairo({
@@ -40,6 +41,7 @@ export default async function RootLayout({
         {!isDashboard && <FloatingButtons />}
         <AOSInitializer />
         {!isDashboard && <Footer />}
+        <ToastContainer />
       </body>
     </html>
   );

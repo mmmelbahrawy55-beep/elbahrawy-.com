@@ -36,6 +36,7 @@ import {
   Youtube
 } from 'lucide-react'
 import { siteData as initialSiteData } from '@/lib/site-data'
+import { showToast } from '@/components/Toast'
 
 // --- Types ---
 interface Customer {
@@ -197,7 +198,7 @@ export default function DashboardPage() {
   }, [])
 
   // --- Save Helpers ---
-  const saveSiteData = async (newData: any) => {
+  const saveSiteData = async (newData: any, showNotification = true) => {
     setSiteData(newData)
     localStorage.setItem('albahrawy_site_data', JSON.stringify(newData))
     
@@ -211,9 +212,14 @@ export default function DashboardPage() {
       if (!response.ok) {
         throw new Error('Failed to save to server')
       }
-      console.log('Site data saved to server successfully')
+      if (showNotification) {
+        showToast('تم حفظ البيانات بنجاح!', 'success')
+      }
     } catch (error) {
       console.error('Error saving site data to server:', error)
+      if (showNotification) {
+        showToast('حدث خطأ أثناء حفظ البيانات', 'error')
+      }
     }
   }
 
@@ -239,12 +245,14 @@ export default function DashboardPage() {
       status: 'pending'
     }
     saveSiteData({ ...siteData, customers: [customer, ...(siteData.customers || [])]})
+    showToast('تم إضافة العميل بنجاح!', 'success')
     setNewCustomer({})
     setShowAddCustomer(false)
   }
 
   const deleteCustomer = (id: number) => {
     saveSiteData({ ...siteData, customers: (siteData.customers || []).filter(c => c.id !== id)})
+    showToast('تم حذف العميل بنجاح!', 'success')
   }
 
   const updateCustomer = (id: number, data: Partial<Customer>) => {
@@ -258,7 +266,8 @@ export default function DashboardPage() {
       }
       return c
     })
-    saveSiteData({ ...siteData, customers: updatedCustomers})
+    saveSiteData({ ...siteData, customers: updatedCustomers}, false)
+    showToast('تم تحديث بيانات العميل بنجاح!', 'success')
     setShowEditCustomer(false)
     setEditingCustomer({})
   }
@@ -276,12 +285,14 @@ export default function DashboardPage() {
       remainingAmount: (newSupplier.totalAmount || 0) - (newSupplier.paidAmount || 0)
     }
     saveSiteData({ ...siteData, suppliers: [supplier, ...(siteData.suppliers || [])]})
+    showToast('تم إضافة المورد بنجاح!', 'success')
     setNewSupplier({})
     setShowAddSupplier(false)
   }
 
   const deleteSupplier = (id: number) => {
     saveSiteData({ ...siteData, suppliers: (siteData.suppliers || []).filter(s => s.id !== id)})
+    showToast('تم حذف المورد بنجاح!', 'success')
   }
 
   const updateSupplier = (id: number, data: Partial<Supplier>) => {
@@ -295,7 +306,8 @@ export default function DashboardPage() {
       }
       return s
     })
-    saveSiteData({ ...siteData, suppliers: updatedSuppliers})
+    saveSiteData({ ...siteData, suppliers: updatedSuppliers}, false)
+    showToast('تم تحديث بيانات المورد بنجاح!', 'success')
     setShowEditSupplier(false)
     setEditingSupplier({})
   }
