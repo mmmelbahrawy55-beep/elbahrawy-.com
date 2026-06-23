@@ -7,7 +7,6 @@ import FloatingButtons from '@/components/FloatingButtons'
 import AOSInitializer from '@/components/AOSInitializer'
 import { ToastContainer } from '@/components/Toast'
 import { headers } from 'next/headers'
-import { Providers } from './Providers'
 
 const cairo = Cairo({
   subsets: ['arabic', 'latin'],
@@ -35,16 +34,14 @@ export default async function RootLayout({
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
       </head>
       <body className="min-h-screen bg-background text-foreground font-sans flex flex-col">
-        <Providers>
-          {!isDashboard && <Header />}
-          <main className="flex-grow">
-            {children}
-          </main>
-          {!isDashboard && <FloatingButtons />}
-          <AOSInitializer />
-          {!isDashboard && <Footer />}
-          <ToastContainer />
-        </Providers>
+        {!isDashboard && <Header />}
+        <main className="flex-grow">
+          {children}
+        </main>
+        {!isDashboard && <FloatingButtons />}
+        <AOSInitializer />
+        {!isDashboard && <Footer />}
+        <ToastContainer />
       </body>
     </html>
   );

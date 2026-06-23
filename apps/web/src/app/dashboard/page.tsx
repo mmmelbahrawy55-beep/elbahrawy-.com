@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSession, signOut } from 'next-auth/react'
 import { 
   TrendingUp, 
   Users, 
@@ -159,13 +158,11 @@ export default function DashboardPage() {
   const [newPartner, setNewPartner] = useState<Partial<{ id: number; name: string; logo: string }>>({})
   const [editPartnerForm, setEditPartnerForm] = useState<any>(null)
 
-  const { data: session, status } = useSession()
-
   useEffect(() => {
-    // Check for either NextAuth session OR localStorage login
+    // Check for localStorage login
     const userStr = localStorage.getItem('user')
     
-    if (status === 'unauthenticated' && !userStr) {
+    if (!userStr) {
       router.push('/login')
       return
     }
@@ -186,9 +183,7 @@ export default function DashboardPage() {
       }
     }
     
-    if (status === 'authenticated' || userStr) {
-      loadData()
-    }
+    loadData()
 
     // --- Load API Keys ---
     const storedApiKeys = localStorage.getItem('albahrawy_api_keys')
@@ -196,7 +191,7 @@ export default function DashboardPage() {
 
     setIsLoggedIn(true)
     setLoading(false)
-  }, [status, router])
+  }, [router])
 
   // --- Save Helpers ---
   const saveSiteData = async (newData: any, showNotification = true) => {
@@ -226,14 +221,9 @@ export default function DashboardPage() {
 
 
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     localStorage.removeItem('user')
     localStorage.removeItem('token')
-    try {
-      await signOut({ redirect: false })
-    } catch (e) {
-      // Ignore if already signed out
-    }
     router.push('/login')
   }
 
