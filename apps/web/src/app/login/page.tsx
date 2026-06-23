@@ -49,7 +49,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-gray-900/50 border border-white/10 rounded-3xl p-8 backdrop-blur-xl shadow-2xl">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent mb-2">
+          <h1 className="text-4xl font-bold text-amber-400 mb-2">
             {siteData.companyName}
           </h1>
           <p className="text-gray-400">تسجيل الدخول إلى لوحة التحكم</p>
