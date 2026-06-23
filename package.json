@@ -26,11 +26,19 @@
     "typescript": "^5.5.4"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": ["eslint --fix", "prettier --write"],
-    "*.{json,md,css}": ["prettier --write"]
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css}": [
+      "prettier --write"
+    ]
   },
   "engines": {
     "node": ">=20"
   },
-  "packageManager": "npm@10.8.3"
+  "packageManager": "npm@10.8.3",
+  "dependencies": {
+    "@prisma/client": "^5.22.0"
+  }
 }
