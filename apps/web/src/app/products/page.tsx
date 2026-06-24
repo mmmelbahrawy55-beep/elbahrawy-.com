@@ -13,6 +13,21 @@ export default function Products() {
       setSiteData(JSON.parse(storedData))
     }
 
+    const fetchFreshData = async () => {
+      try {
+        const response = await fetch('/api/site-data')
+        if (response.ok) {
+          const freshData = await response.json()
+          setSiteData(freshData)
+          localStorage.setItem('albahrawy_site_data', JSON.stringify(freshData))
+        }
+      } catch (error) {
+        console.error('Failed to fetch fresh site data:', error)
+      }
+    }
+
+    fetchFreshData()
+
     const handleStorageChange = () => {
       const updatedData = localStorage.getItem('albahrawy_site_data')
       if (updatedData) {

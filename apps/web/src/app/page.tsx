@@ -77,6 +77,22 @@ export default function Home() {
     localStorage.setItem('albahrawy_site_data', JSON.stringify(updatedData))
     setSiteData(updatedData)
 
+    // Save to server (API) for persistent storage
+    try {
+      const response = await fetch('/api/site-data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updatedData),
+      })
+      if (!response.ok) {
+        console.error('Failed to save order to server')
+      }
+    } catch (error) {
+      console.error('Error saving order to server:', error)
+    }
+
     // Simulate successful submission
     setTimeout(() => {
       setFormStatus('success')

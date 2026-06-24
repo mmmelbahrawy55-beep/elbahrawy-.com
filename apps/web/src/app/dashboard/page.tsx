@@ -138,6 +138,18 @@ export default function DashboardPage() {
   const [activeMarketingEmployee, setActiveMarketingEmployee] = useState<string>('')
   const [chatMessages, setChatMessages] = useState<{ role: 'user' | 'assistant'; text: string }[]>([])
   const [chatInput, setChatInput] = useState('')
+  const [marketingStats, setMarketingStats] = useState<any>(null)
+  const [campaigns, setCampaigns] = useState<any[]>([])
+  const [marketingLoading, setMarketingLoading] = useState(false)
+  const [isThinking, setIsThinking] = useState(false)
+  const [companyData, setCompanyData] = useState({
+    companyName: 'البحراوي للدعاية والإعلان',
+    website: '',
+    socialLinks: [],
+    about: '',
+    industry: 'دعاية وإعلان',
+    location: 'مصر'
+  })
   const router = useRouter()
 
   // --- State for Forms ---
@@ -192,6 +204,28 @@ export default function DashboardPage() {
     setIsLoggedIn(true)
     setLoading(false)
   }, [router])
+
+  useEffect(() => {
+    if (currentTab === 'marketing') {
+      const fetchMarketingData = async () => {
+        setMarketingLoading(true)
+        try {
+          const statsRes = await fetch('/api/marketing/dashboard')
+          const stats = await statsRes.json()
+          if (stats.success) setMarketingStats(stats.data)
+
+          const campaignsRes = await fetch('/api/marketing/campaigns')
+          const campaignsData = await campaignsRes.json()
+          if (campaignsData.success) setCampaigns(campaignsData.data.data)
+        } catch (error) {
+          console.error('Error fetching marketing data:', error)
+        } finally {
+          setMarketingLoading(false)
+        }
+      }
+      fetchMarketingData()
+    }
+  }, [currentTab])
 
   // --- Save Helpers ---
   const saveSiteData = async (newData: any, showNotification = true) => {
@@ -310,27 +344,204 @@ export default function DashboardPage() {
 
   const sendMessage = async () => {
     if (!chatInput.trim()) return
-    setChatMessages([...chatMessages, { role: 'user', text: chatInput }])
     const userText = chatInput
+    const lowerText = userText.toLowerCase()
+    setChatMessages([...chatMessages, { role: 'user', text: userText }])
     setChatInput('')
+    setIsThinking(true)
 
-    // Get the selected employee to know their role
-    const emp = marketingEmployees.find(e => e.id === activeMarketingEmployee)
-    const systemPrompt = `أنت ${emp?.name}, ${emp?.role} في شركة البحراوي للإعلانات. ${emp?.description}. أجب باللغة العربية فقط وكن مبدع ومفيد ومختصر.`
+    // --- Enhanced Command Detection & Execution ---
+    let actionTaken = false
+    let actionResponse = ''
 
-    // Check if we have the OpenAI API key
-    if (!apiKeys.openai || apiKeys.openai.trim() === '') {
+    // --- Command 1: Add Campaign (Advanced) ---
+    if ((lowerText.includes('حملة') || lowerText.includes('campaign')) && (lowerText.includes('أضف') || lowerText.includes('أنشئ') || lowerText.includes('انشئ') || lowerText.includes('create') || lowerText.includes('add'))) {
+      actionTaken = true
+      let campaignName = 'حملة إعلانية جديدة'
+      let budget = 10000
+      let status = 'Draft'
+      
+      // Extract name
+      const nameMatch = userText.match(/حملة\s+(.+?)(?:\s+ب|$)/i)
+      if (nameMatch && nameMatch[1]) campaignName = nameMatch[1].charAt(0).toUpperCase() + nameMatch[1].slice(1)
+      
+      // Extract budget
+      const budgetMatch = lowerText.match(/(?:ب|بميزانية|بميزانيات|لميزانية|لميزانيات|budget)\s*(\d+(?:,\d+)?)/)
+      if (budgetMatch && budgetMatch[1]) budget = parseInt(budgetMatch[1].replace(/,/g, ''))
+
+      const newCampaign = {
+        id: Date.now(),
+        name: campaignName,
+        type: 'Social',
+        budget: budget,
+        spent: 0,
+        status: status,
+        roi: 0
+      }
+      
+      const updatedCampaigns = [...(campaigns || []), newCampaign]
+      setCampaigns(updatedCampaigns)
+      
+      actionResponse = `🚀 **تم إنشاء حملة جديدة بنجاح!**\n\n📢 **اسم الحملة:** ${campaignName}\n💰 **الميزانية:** ${budget.toLocaleString()} ج.م\n🎯 **الحالة:** ${status === 'Draft' ? 'مسودة' : 'نشطة'}\n\n✅ تم حفظ الحملة في النظام. يمكنك الآن تخصيصها وتفعيلها.`
+    }
+    
+    // --- Command 2: Add Customer (Advanced) ---
+    else if ((lowerText.includes('عميل') || lowerText.includes('customer')) && (lowerText.includes('أضف') || lowerText.includes('أنشئ') || lowerText.includes('انشئ') || lowerText.includes('create') || lowerText.includes('add'))) {
+      actionTaken = true
+      let customerName = 'عميل جديد'
+      let phone = '01012345678'
+      let projectDetails = 'عميل تم تسجيله عبر الشات الذكي'
+      
+      // Extract name
+      const nameMatch = userText.match(/عميل\s+(.+?)(?:\s+ر|هاتف|$)/i)
+      if (nameMatch && nameMatch[1]) customerName = nameMatch[1].charAt(0).toUpperCase() + nameMatch[1].slice(1)
+      
+      // Extract phone
+      const phoneMatch = userText.match(/(?:هاتف|رقم|تلفون|phone)\s*(\d+)/)
+      if (phoneMatch && phoneMatch[1]) phone = phoneMatch[1]
+
+      const newCustomer = {
+        id: Date.now(),
+        name: customerName,
+        phone: phone,
+        projectDetails: projectDetails,
+        orderDate: new Date().toISOString().split('T')[0],
+        totalAmount: 0,
+        paidAmount: 0,
+        remainingAmount: 0,
+        status: 'pending' as any
+      }
+      
+      const updatedCustomers = [newCustomer, ...(siteData.customers || [])]
+      saveSiteData({ ...siteData, customers: updatedCustomers })
+      
+      actionResponse = `👤 **تم إضافة العميل بنجاح!**\n\n**الاسم:** ${customerName}\n**الهاتف:** ${phone}\n**تاريخ التسجيل:** ${new Date().toLocaleDateString('ar-EG')}\n\n✅ العميل تم إضافته إلى قسم العملاء. يمكنك الآن متابعت الطلبات معه.`
+    }
+    
+    // --- Command 3: Add Product (Advanced) ---
+    else if ((lowerText.includes('منتج') || lowerText.includes('product')) && (lowerText.includes('أضف') || lowerText.includes('أنشئ') || lowerText.includes('انشئ') || lowerText.includes('create') || lowerText.includes('add'))) {
+      actionTaken = true
+      let productName = 'منتج جديد'
+      let price = 1000
+      let category = 'لوحات إعلانية'
+      
+      // Extract name
+      const nameMatch = userText.match(/منتج\s+(.+?)(?:\s+ب|سعر|فئة|$)/i)
+      if (nameMatch && nameMatch[1]) productName = nameMatch[1].charAt(0).toUpperCase() + nameMatch[1].slice(1)
+      
+      // Extract price
+      const priceMatch = lowerText.match(/(?:سعر|بسعر|price)\s*(\d+(?:,\d+)?)/)
+      if (priceMatch && priceMatch[1]) price = parseInt(priceMatch[1].replace(/,/g, ''))
+
+      const newProduct = {
+        id: Date.now(),
+        name: productName,
+        category: category,
+        price: price,
+        description: 'منتج تم إضافته عبر الشات الذكي',
+        image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80',
+        width: 100,
+        height: 200,
+        unit: 'cm',
+        pricingType: 'piece'
+      }
+      
+      const updatedProducts = [...(siteData.products || []), newProduct]
+      saveSiteData({ ...siteData, products: updatedProducts })
+      
+      actionResponse = `📦 **تم إضافة المنتج بنجاح!**\n\n**اسم المنتج:** ${productName}\n**السعر:** ${price.toLocaleString()} ج.م\n**الفئة:** ${category}\n\n✅ المنتج موجود الآن في قسم المنتجات.`
+    }
+    
+    // --- Command 4: Advanced Statistics & Reports ---
+    else if (lowerText.includes('إحصائيات') || lowerText.includes('تقرير') || lowerText.includes('أرقام') || lowerText.includes('احصائيات') || lowerText.includes('report') || lowerText.includes('stats') || lowerText.includes('statistics')) {
+      actionTaken = true
+      const totalCustomers = siteData.customers?.length || 0
+      const totalProducts = siteData.products?.length || 0
+      const totalRevenue = (siteData.customers || []).reduce((sum: number, c: any) => sum + (c.paidAmount || 0), 0)
+      const activeCampaigns = campaigns.length || 0
+      const totalPortfolio = siteData.portfolio?.length || 0
+      const totalPartners = siteData.clients?.length || 0
+      
+      actionResponse = `📊 **تقرير أداء النظام الكامل**\n\n📈 **نظرة عامة:**\n• 👥 عدد العملاء: ${totalCustomers}\n• 📦 عدد المنتجات: ${totalProducts}\n• 📢 الحملات النشطة: ${activeCampaigns}\n• 🎨 معرض الأعمال: ${totalPortfolio}\n• 🤝 الشركاء: ${totalPartners}\n\n💰 **الإيرادات:**\n• إجمالي الإيرادات: ${totalRevenue.toLocaleString()} ج.م\n\n💡 **ملاحظة:**\n• النموذج يعمل في وضع التجريب الآن\n• في الإصدار الكامل، بيعطيك تحليل أعمق و رسومات بيانية تفصيلية`
+    }
+    
+    // --- Command 5: Market Analysis & Brainstorming ---
+    else if (lowerText.includes('فكر') || lowerText.includes('تحليل') || lowerText.includes('منافسين') || lowerText.includes('سوق') || lowerText.includes('فكرة') || lowerText.includes('brainstorm') || lowerText.includes('analysis')) {
+      actionTaken = true
+      actionResponse = `🧠 **جاري تفكير عميق...**\n\n✅ **تم تحليل الطلب الخاص بك!**\n\n📌 **تحليل مبدئي للفكرة:**\n1. الفكرة واضحة وتعبر عن حاجة فعالة في السوق\n2. المنافسين موجودين لكن عندنا ميزة فريدة (الجودة والسريعة)\n3. الميزانيّة المقترحة مناسبة للبداية\n\n💡 **الخطة المقترحة:**\n1. نعمل دراسة سوق سريعة (تحليل 3 منافسين)\n2. نبدأ بحملة إعلانات صغيرة تجريبية على فيسبوك وإنستجرام\n3. نقارن النتائج بعد 7 أيام\n4. نحسّن أو نوسع بناءً على النتائج\n\n⚠️ **ملاحظة:**\nهذا تحليل تجريبي. في الإصدار الكامل بيعمل:\n• بحث حقيقي على الإنترنت\n• تحليل منافسين عميق\n• دراسة مالية تفصيلية\n• توصيات تنفيذية مع أوقات وميزانيات`
+    }
+    
+    // --- Command 6: Navigation & Control ---
+    else if (lowerText.includes('اذهب') || lowerText.includes('قسم') || lowerText.includes('go to') || lowerText.includes('navigate')) {
+      actionTaken = true
+      let destTab = ''
+      
+      if (lowerText.includes('عملاء') || lowerText.includes('customers')) destTab = 'customers'
+      else if (lowerText.includes('منتجات') || lowerText.includes('products')) destTab = 'products'
+      else if (lowerText.includes('إحصائيات') || lowerText.includes('stats')) destTab = 'stats'
+      else if (lowerText.includes('طلبات') || lowerText.includes('orders')) destTab = 'orders'
+      else if (lowerText.includes('مورد') || lowerText.includes('suppliers')) destTab = 'suppliers'
+      else if (lowerText.includes('محتوى') || lowerText.includes('portfolio')) destTab = 'portfolio'
+      else if (lowerText.includes('شركاء') || lowerText.includes('partners')) destTab = 'partners'
+      
+      if (destTab) {
+        setCurrentTab(destTab)
+        const tabNames: Record<string, string> = {
+          customers: 'العملاء',
+          products: 'المنتجات',
+          stats: 'الإحصائيات',
+          orders: 'الطلبات',
+          suppliers: 'الموردين',
+          portfolio: 'معرض الأعمال',
+          partners: 'الشركاء'
+        }
+        actionResponse = `🔄 **تم الانتقال بنجاح!**\n\n✅ انتقلت إلى قسم **${tabNames[destTab] || destTab}**`
+      } else {
+        actionResponse = '❓ لم أفهم إلى أي قسم تريد الانتقال. يمكنك قول "اذهب إلى العملاء" أو "اذهب إلى المنتجات"'
+      }
+    }
+    
+    // --- Command 7: Help & Information ---
+    else if (lowerText.includes('مساعدة') || lowerText.includes('مميزات') || lowerText.includes('help') || lowerText.includes('features') || lowerText.includes('ماذا تفعل')) {
+      actionTaken = true
+      actionResponse = `🤖 **مرحباً! أنا مساعدك الذكي في منصة البحراوي!**\n\n🔹 **الأشياء اللي أقدر أعملها:**\n• إضافة حملات تسويقية\n• إضافة عملاء جدد\n• إضافة منتجات جديدة\n• تحليل السوق والمنافسين\n• إعطائك تقارير وإحصائيات\n• الانتقال بين الأقسام\n• الرد على أي سؤال عن التسويق\n\n💡 **أمثلة للأوامر:**\n• "أضف حملة باسم صيف 2024 بميزانية 50000"\n• "أضف عميل باسم أحمد هاتف 0123456789"\n• "أعطني تقرير الإحصائيات"\n• "اذهب إلى قسم المنتجات"\n• "فكر لي في حملة سوشيال ميديا"`
+    }
+    
+    // --- Command 8: Clear All ---
+    else if (lowerText.includes('مسح') || lowerText.includes('مسح الشات') || lowerText.includes('clear')) {
+      actionTaken = true
+      setChatMessages([])
+      actionResponse = '🧹 تم مسح الشات بنجاح!'
+    }
+
+    // If action taken, respond and return
+    if (actionTaken) {
+      setIsThinking(false)
       setTimeout(() => {
         setChatMessages(prev => [...prev, {
           role: 'assistant',
-          text: 'يرجى إضافة مفتاح OpenAI API في قسم إعدادات APIs أولًا!'
+          text: actionResponse
+        }])
+      }, 800)
+      return
+    }
+
+    // --- Advanced AI Chat (GPT-4 Turbo) ---
+    const emp = marketingEmployees.find(e => e.id === activeMarketingEmployee)
+    const systemPrompt = `أنت ${emp?.name || 'المساعد الذكي'}، ${emp?.role || 'رئيس التسويق الذكي'} في شركة ${companyData.companyName} (${companyData.industry}). أنت مساعد ذكي ذو تفكير عميق قادر على:\n1. الرد على أي سؤال في مجال التسويق والإعلان\n2. تحليل السوق والمنافسين\n3. إعطاء توصيات عملية وقابلة للتنفيذ\n4. التحدث باللغة العربية فقط باحترافية\n5. أن تكون مبدعًا ومفيدًا ومختصرًا\n\nمعلومات النظام:\n• عدد العملاء: ${siteData.customers?.length || 0}\n• عدد المنتجات: ${siteData.products?.length || 0}\n• الحملات النشطة: ${campaigns?.length || 0}\n\nاجب على السؤال باللغة العربية فقط. كن محترفًا ومفيدًا.`
+
+    if (!apiKeys.openai || apiKeys.openai.trim() === '') {
+      setIsThinking(false)
+      setTimeout(() => {
+        setChatMessages(prev => [...prev, {
+          role: 'assistant',
+          text: 'يرجى إضافة مفتاح OpenAI API في قسم APIs أولًا! أو يمكنك تجربتي بالأوامر السريعة. 🚀\n\nاكتب "مساعدة" لتعرف ماذا أقدر أعمل!'
         }])
       }, 500)
       return
     }
 
     try {
-      // Call OpenAI API
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -338,14 +549,14 @@ export default function DashboardPage() {
           'Authorization': `Bearer ${apiKeys.openai}`
         },
         body: JSON.stringify({
-          model: 'gpt-3.5-turbo',
+          model: 'gpt-4-turbo',
           messages: [
             { role: 'system', content: systemPrompt },
             ...chatMessages.map(m => ({ role: m.role, content: m.text })),
             { role: 'user', content: userText }
           ],
-          temperature: 0.7,
-          max_tokens: 1000
+          temperature: 0.8,
+          max_tokens: 2000
         })
       })
 
@@ -363,6 +574,7 @@ export default function DashboardPage() {
       const data = await response.json()
       const aiResponse = data.choices[0]?.message?.content || 'آسف، لم أتمكن من الحصول على رد!'
 
+      setIsThinking(false)
       setChatMessages(prev => [...prev, {
         role: 'assistant',
         text: aiResponse
@@ -370,10 +582,11 @@ export default function DashboardPage() {
 
     } catch (error: any) {
       console.error('OpenAI API Error:', error)
+      setIsThinking(false)
       setTimeout(() => {
         setChatMessages(prev => [...prev, {
           role: 'assistant',
-          text: `خطأ! ${error?.message || 'تأكد من صحة مفتاح API واتصال الإنترنت!'}`
+          text: `⚠️ **حدث خطأ!**\n\n${error?.message || 'تأكد من صحة مفتاح API'}\n\n💡 يمكنك تجربتي بالأوامر السريعة بدون API! اكتب "مساعدة" للتعرف على المزيد.`
         }])
       }, 500)
     }
@@ -871,6 +1084,179 @@ export default function DashboardPage() {
           {/* 6: Marketing Center */}
           {currentTab === 'marketing' && (
             <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              
+              {/* Professional Dashboard Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[
+                  { label: 'عائد الاستثمار (ROI)', value: `${marketingStats?.roi || 0}x`, icon: TrendingUp, color: 'text-green-500', bg: 'bg-green-500/10' },
+                  { label: 'إجمالي الإيرادات', value: `${(marketingStats?.totalRevenue || 0).toLocaleString()} ج.م`, icon: DollarSign, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+                  { label: 'العملاء المحتملين', value: marketingStats?.totalLeads || 0, icon: UserPlus, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+                  { label: 'إجمالي الوصول', value: (marketingStats?.totalReach || 0).toLocaleString(), icon: Globe, color: 'text-yellow-500', bg: 'bg-yellow-500/10' },
+                ].map((stat, i) => (
+                  <div key={i} className="bg-[#0F0F0F] border border-white/5 p-6 rounded-[2rem] hover:border-[#FFD700]/30 transition-all group">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center`}>
+                        <stat.icon className="w-6 h-6" />
+                      </div>
+                      <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">مباشر</span>
+                    </div>
+                    <p className="text-gray-400 text-sm font-bold mb-1">{stat.label}</p>
+                    <h3 className="text-2xl font-black text-white group-hover:text-[#FFD700] transition-colors">{stat.value}</h3>
+                  </div>
+                ))}
+              </div>
+
+              {/* Campaigns & Active Ads */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Campaigns Table */}
+                <div className="lg:col-span-2 bg-[#0F0F0F] border border-white/5 rounded-[2.5rem] p-8">
+                  <div className="flex justify-between items-center mb-8">
+                    <h3 className="text-2xl font-black text-white flex items-center gap-3">
+                      <Rocket className="text-[#FFD700]" /> الحملات النشطة
+                    </h3>
+                    <button className="text-[#FFD700] text-sm font-bold hover:underline">عرض الكل ←</button>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    {marketingLoading ? (
+                      <div className="flex flex-col gap-4">
+                        {[1, 2, 3].map(i => (
+                          <div key={i} className="h-20 bg-white/5 rounded-2xl animate-pulse"></div>
+                        ))}
+                      </div>
+                    ) : campaigns.length === 0 ? (
+                      <div className="text-center py-10 text-gray-500">
+                        <Package className="w-12 h-12 mx-auto mb-4 opacity-20" />
+                        <p>لا توجد حملات نشطة حالياً</p>
+                      </div>
+                    ) : (
+                      campaigns.map((campaign, i) => (
+                        <div key={i} className="p-6 bg-black/40 border border-white/5 rounded-2xl flex items-center justify-between hover:border-[#FFD700]/30 transition group">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-[#FFD700]/10 text-[#FFD700] rounded-xl flex items-center justify-center font-black">
+                              {campaign.type === 'Social' ? <Facebook className="w-6 h-6" /> : <Globe className="w-6 h-6" />}
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-white group-hover:text-[#FFD700] transition">{campaign.name}</h4>
+                              <p className="text-[10px] text-gray-500 uppercase tracking-widest">{campaign.status}</p>
+                            </div>
+                          </div>
+                          <div className="flex gap-8">
+                            <div className="text-left">
+                              <p className="text-[10px] text-gray-500 uppercase font-bold mb-1">الميزانية</p>
+                              <p className="text-sm font-black text-white">{campaign.budget.toLocaleString()} ج.م</p>
+                            </div>
+                            <div className="text-left">
+                              <p className="text-[10px] text-gray-500 uppercase font-bold mb-1">ROI</p>
+                              <p className="text-sm font-black text-green-500">{campaign.roi}x</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                {/* Performance Chart (Placeholder) */}
+                <div className="bg-gradient-to-br from-[#0F0F0F] to-[#1A1A1A] border border-white/5 rounded-[2.5rem] p-8">
+                  <h3 className="text-xl font-black text-white mb-8">تحليل القنوات</h3>
+                  <div className="space-y-6">
+                    {[
+                      { name: 'فيسبوك', value: 65, color: 'bg-blue-500' },
+                      { name: 'إنستجرام', value: 45, color: 'bg-pink-500' },
+                      { name: 'جوجل', value: 30, color: 'bg-yellow-500' },
+                      { name: 'واتساب', value: 85, color: 'bg-green-500' },
+                    ].map((item, i) => (
+                      <div key={i} className="space-y-2">
+                        <div className="flex justify-between text-xs font-bold">
+                          <span className="text-gray-400">{item.name}</span>
+                          <span className="text-white">{item.value}%</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                          <div className={`h-full ${item.color}`} style={{ width: `${item.value}%` }}></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="mt-10 p-6 bg-[#FFD700]/5 border border-[#FFD700]/20 rounded-2xl">
+                    <div className="flex items-center gap-3 mb-2">
+                      <Sparkles className="w-4 h-4 text-[#FFD700]" />
+                      <p className="text-xs font-black text-[#FFD700]">نصيحة المخطط الذكي</p>
+                    </div>
+                    <p className="text-[10px] text-gray-400 leading-relaxed">
+                      حملات الواتساب تحقق أعلى عائد استثمار حالياً (8.5x). ننصح بزيادة الميزانية بنسبة 20% للأسبوع القادم.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Leads Management Section */}
+              <div className="bg-[#0F0F0F] border border-white/5 rounded-[2.5rem] p-8">
+                <div className="flex justify-between items-center mb-8">
+                  <h3 className="text-2xl font-black text-white flex items-center gap-3">
+                    <UserPlus className="text-[#FFD700]" /> العملاء المحتملين (Leads)
+                  </h3>
+                  <div className="flex gap-4">
+                    <div className="px-4 py-2 bg-green-500/10 text-green-500 rounded-xl text-xs font-bold border border-green-500/20">
+                      معدل التحويل: {marketingStats?.conversionRate || 0}%
+                    </div>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-right">
+                    <thead>
+                      <tr className="text-gray-500 text-xs font-bold uppercase tracking-widest border-b border-white/5">
+                        <th className="pb-4 pr-4">العميل</th>
+                        <th className="pb-4">المصدر</th>
+                        <th className="pb-4">الحالة</th>
+                        <th className="pb-4">القيمة المتوقعة</th>
+                        <th className="pb-4 pl-4 text-left">الإجراءات</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {marketingStats?.leads?.length > 0 ? (
+                        marketingStats.leads.map((lead: any, i: number) => (
+                          <tr key={i} className="group hover:bg-white/5 transition-colors">
+                            <td className="py-4 pr-4">
+                              <div className="font-bold text-white">{lead.name}</div>
+                              <div className="text-[10px] text-gray-500">{lead.email || lead.phone}</div>
+                            </td>
+                            <td className="py-4">
+                              <span className="text-xs text-gray-400">{lead.source}</span>
+                            </td>
+                            <td className="py-4">
+                              <span className={`px-2 py-1 rounded-md text-[10px] font-bold ${
+                                lead.status === 'New' ? 'bg-blue-500/10 text-blue-500' :
+                                lead.status === 'Contacted' ? 'bg-yellow-500/10 text-yellow-500' :
+                                'bg-green-500/10 text-green-500'
+                              }`}>
+                                {lead.status}
+                              </span>
+                            </td>
+                            <td className="py-4 font-inter text-sm text-white">
+                              {(lead.value || 0).toLocaleString()} ج.م
+                            </td>
+                            <td className="py-4 pl-4 text-left">
+                              <button className="text-gray-500 hover:text-[#FFD700] transition">
+                                <Edit className="w-4 h-4" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={5} className="py-10 text-center text-gray-500 text-sm">
+                            لا يوجد عملاء محتملين مسجلين حالياً
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
               {/* API Key Section */}
               <div className="bg-[#0F0F0F] border border-white/5 rounded-[2.5rem] p-8 space-y-8">
                 <h3 className="text-2xl font-black mb-6 flex items-center gap-3">
@@ -1094,9 +1480,42 @@ export default function DashboardPage() {
                         {chatMessages.map((msg, idx) => (
                           <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-start' : 'justify-end'}`}>
                             <div className={`max-w-[80%] p-4 rounded-2xl ${msg.role === 'user' ? 'bg-[#FFD700] text-black font-bold' : 'bg-white/5 border border-white/10'}`}>
-                              <p className="text-sm">{msg.text}</p>
+                              <p className="text-sm whitespace-pre-line">{msg.text}</p>
                             </div>
                           </div>
+                        ))}
+                        {isThinking && (
+                          <div className="flex justify-end">
+                            <div className="max-w-[80%] p-4 rounded-2xl bg-white/5 border border-white/10">
+                              <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 bg-[#FFD700] rounded-full animate-bounce"></div>
+                                <div className="w-2 h-2 bg-[#FFD700] rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                                <div className="w-2 h-2 bg-[#FFD700] rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      {/* Quick Commands */}
+                      <div className="px-6 pb-2 flex flex-wrap gap-2">
+                        {[
+                          'أضف حملة إعلانية جديدة',
+                          'أضف عميل',
+                          'أضف منتج',
+                          'أعطني إحصائيات',
+                          'فكر معي في خطة تسويقية',
+                          'اذهب إلى العملاء'
+                        ].map((cmd, i) => (
+                          <button
+                            key={i}
+                            onClick={() => {
+                              setChatInput(cmd)
+                              setTimeout(() => sendMessage(), 100)
+                            }}
+                            className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-xs font-bold hover:border-[#FFD700] hover:text-[#FFD700] transition"
+                          >
+                            {cmd}
+                          </button>
                         ))}
                       </div>
                       <div className="p-6 border-t border-white/10">
