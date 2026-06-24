@@ -1,4 +1,4 @@
-import { siteData } from '@/lib/site-data'
+import { siteData } from '../lib/site-data'
 
 export default function Footer() {
   return (

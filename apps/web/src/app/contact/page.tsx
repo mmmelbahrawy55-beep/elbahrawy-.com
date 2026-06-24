@@ -1,6 +1,6 @@
 'use client'
 
-import { siteData } from '@/lib/site-data'
+import { siteData } from '../../lib/site-data'
 import { useState } from 'react'
 
 export default function Contact() {

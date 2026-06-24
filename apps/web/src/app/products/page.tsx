@@ -1,6 +1,6 @@
 'use client'
 
-import { siteData as defaultSiteData } from '@/lib/site-data'
+import { siteData as defaultSiteData } from '../../lib/site-data'
 import { useState, useEffect } from 'react'
 
 export default function Products() {

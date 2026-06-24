@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@albahrawy/database'
-import { defaultData } from '@/lib/site-data'
+import { defaultData } from '../../../lib/site-data'
 
 export async function GET() {
   try {

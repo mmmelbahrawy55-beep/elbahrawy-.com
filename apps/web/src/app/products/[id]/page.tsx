@@ -1,6 +1,6 @@
 'use client'
 
-import { siteData as defaultSiteData, SiteData } from '@/lib/site-data'
+import { siteData as defaultSiteData, SiteData } from '../../../lib/site-data'
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 

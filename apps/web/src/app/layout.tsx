@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import "../styles/globals.css";
 import { Cairo } from 'next/font/google'
-import Header from '@/components/Header'
-import Footer from '@/components/Footer'
-import FloatingButtons from '@/components/FloatingButtons'
-import AOSInitializer from '@/components/AOSInitializer'
-import { ToastContainer } from '@/components/Toast'
+import Header from '../components/Header'
+import Footer from '../components/Footer'
+import FloatingButtons from '../components/FloatingButtons'
+import AOSInitializer from '../components/AOSInitializer'
+import { ToastContainer } from '../components/Toast'
 import { headers } from 'next/headers'
 
 const cairo = Cairo({

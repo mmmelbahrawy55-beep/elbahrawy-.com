@@ -2,7 +2,7 @@
 
 // Online database version
 
-import { siteData as defaultSiteData, SiteData } from '@/lib/site-data'
+import { siteData as defaultSiteData, SiteData } from '../lib/site-data'
 import { useState, useEffect } from 'react'
 
 export default function Home() {

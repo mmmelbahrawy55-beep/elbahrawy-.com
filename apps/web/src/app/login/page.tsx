@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff } from 'lucide-react'
-import { siteData } from '@/lib/site-data'
+import { siteData } from '../../lib/site-data'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')

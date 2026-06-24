@@ -35,8 +35,8 @@ import {
   Twitter,
   Youtube
 } from 'lucide-react'
-import { siteData as initialSiteData } from '@/lib/site-data'
-import { showToast } from '@/components/Toast'
+import { siteData as initialSiteData } from '../../lib/site-data'
+import { showToast } from '../../components/Toast'
 
 // --- Types ---
 interface Customer {
@@ -1751,6 +1751,10 @@ export default function DashboardPage() {
                 <label className="text-sm font-bold text-gray-400">اسم القسم</label>
                 <input placeholder="مثال: لوحات إعلانية" value={newCategory.name || ''} onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })} className="w-full bg-black/60 border-2 border-white/10 rounded-2xl px-6 py-5 text-lg text-white focus:outline-none focus:border-[#FFD700] transition" />
               </div>
+              <div className="space-y-3">
+                <label className="text-sm font-bold text-gray-400">أيقونة القسم (مثال: fa-tag)</label>
+                <input placeholder="fa-tag" value={newCategory.icon || ''} onChange={(e) => setNewCategory({ ...newCategory, icon: e.target.value })} className="w-full bg-black/60 border-2 border-white/10 rounded-2xl px-6 py-5 text-lg text-white focus:outline-none focus:border-[#FFD700] transition" />
+              </div>
 
               <div className="space-y-4">
                 <label className="text-sm font-bold text-gray-400">صورة القسم</label>
@@ -1782,7 +1786,7 @@ export default function DashboardPage() {
               <div className="pt-4 space-y-4">
                 <button onClick={() => {
                   if(!newCategory.name) return
-                  const cat = { id: Date.now(), name: newCategory.name, image: newCategory.image || 'https://picsum.photos/400/300' }
+                  const cat = { id: Date.now(), name: newCategory.name, icon: newCategory.icon || 'fa-tag', image: newCategory.image || 'https://picsum.photos/400/300' }
                   saveSiteData({ ...siteData, categories: [...siteData.categories, cat] })
                   setShowAddCategory(false)
                   setNewCategory({})
@@ -1814,6 +1818,10 @@ export default function DashboardPage() {
               <div className="space-y-3">
                 <label className="text-sm font-bold text-gray-400">اسم القسم</label>
                 <input placeholder="مثال: لوحات إعلانية" value={editCategoryForm.name || ''} onChange={(e) => setEditCategoryForm({ ...editCategoryForm, name: e.target.value })} className="w-full bg-black/60 border-2 border-white/10 rounded-2xl px-6 py-5 text-lg text-white focus:outline-none focus:border-[#FFD700] transition" />
+              </div>
+              <div className="space-y-3">
+                <label className="text-sm font-bold text-gray-400">أيقونة القسم (مثال: fa-tag)</label>
+                <input placeholder="fa-tag" value={editCategoryForm.icon || ''} onChange={(e) => setEditCategoryForm({ ...editCategoryForm, icon: e.target.value })} className="w-full bg-black/60 border-2 border-white/10 rounded-2xl px-6 py-5 text-lg text-white focus:outline-none focus:border-[#FFD700] transition" />
               </div>
 
               <div className="space-y-4">
