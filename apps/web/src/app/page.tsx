@@ -22,9 +22,11 @@ export default function Home() {
         const response = await fetch('/api/site-data')
         if (response.ok) {
           const freshData = await response.json()
-          setSiteData(freshData)
-          // Update localStorage as well
-          localStorage.setItem('albahrawy_site_data', JSON.stringify(freshData))
+          if (freshData && typeof freshData === 'object' && freshData.categories) {
+            setSiteData(freshData)
+            // Update localStorage as well
+            localStorage.setItem('albahrawy_site_data', JSON.stringify(freshData))
+          }
         }
       } catch (error) {
         console.error('Failed to fetch fresh site data:', error)

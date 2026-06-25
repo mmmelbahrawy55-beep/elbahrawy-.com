@@ -183,15 +183,24 @@ export default function DashboardPage() {
     const loadData = async () => {
       try {
         const res = await fetch('/api/site-data')
+        if (!res.ok) throw new Error('Failed to fetch')
         const data = await res.json()
-        setSiteData(data)
-        // Also sync to localStorage
-        localStorage.setItem('albahrawy_site_data', JSON.stringify(data))
+        if (data && typeof data === 'object') {
+          setSiteData(data)
+          // Also sync to localStorage
+          localStorage.setItem('albahrawy_site_data', JSON.stringify(data))
+        }
       } catch (error) {
         console.error('Error loading data from server, falling back to localStorage:', error)
         // --- Fallback to Saved Data ---
         const storedData = localStorage.getItem('albahrawy_site_data')
-        if (storedData) setSiteData(JSON.parse(storedData))
+        if (storedData) {
+          try {
+            setSiteData(JSON.parse(storedData))
+          } catch (e) {
+            console.error('Failed to parse localStorage data')
+          }
+        }
       }
     }
     
@@ -229,6 +238,7 @@ export default function DashboardPage() {
 
   // --- Save Helpers ---
   const saveSiteData = async (newData: any, showNotification = true) => {
+    // Optimistic update
     setSiteData(newData)
     localStorage.setItem('albahrawy_site_data', JSON.stringify(newData))
     
@@ -239,16 +249,20 @@ export default function DashboardPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newData),
       })
+      
+      const result = await response.json()
+      
       if (!response.ok) {
-        throw new Error('Failed to save to server')
+        throw new Error(result.error || 'Failed to save to server')
       }
+      
       if (showNotification) {
         showToast('تم حفظ البيانات بنجاح!', 'success')
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving site data to server:', error)
       if (showNotification) {
-        showToast('حدث خطأ أثناء حفظ البيانات', 'error')
+        showToast(`خطأ في الحفظ: ${error.message || 'تأكد من اتصال قاعدة البيانات'}`, 'error')
       }
     }
   }
@@ -1786,8 +1800,9 @@ export default function DashboardPage() {
               <div className="pt-4 space-y-4">
                 <button onClick={() => {
                   if(!newCategory.name) return
-                  const cat = { id: Date.now(), name: newCategory.name, icon: newCategory.icon || 'fa-tag', image: newCategory.image || 'https://picsum.photos/400/300' }
-                  saveSiteData({ ...siteData, categories: [...siteData.categories, cat] })
+                  const cat = { id: Date.now().toString(), name: newCategory.name, icon: newCategory.icon || 'fa-tag', image: newCategory.image || 'https://picsum.photos/400/300' }
+                  const currentCategories = Array.isArray(siteData.categories) ? siteData.categories : []
+                  saveSiteData({ ...siteData, categories: [...currentCategories, cat] })
                   setShowAddCategory(false)
                   setNewCategory({})
                 }} className="w-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black py-6 rounded-3xl font-black text-xl shadow-xl hover:shadow-[#FFD700]/30 transition hover:scale-[1.02]">
@@ -1968,14 +1983,15 @@ export default function DashboardPage() {
                 
                 <div className="pt-6 space-y-4">
                   <button onClick={() => {
-                    if(!newProduct.name) return
-                    const prod = { id: Date.now(), ...newProduct, image: newProduct.image || 'https://picsum.photos/400/300' }
-                    saveSiteData({ ...siteData, products: [...siteData.products, prod] })
-                    setShowAddProduct(false)
-                    setNewProduct({})
-                  }} className="w-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black py-6 rounded-3xl font-black text-xl shadow-xl hover:shadow-[#FFD700]/30 transition hover:scale-[1.02]">
-                    إضافة المنتج
-                  </button>
+                  if(!newProduct.name) return
+                  const prod = { id: Date.now(), ...newProduct, image: newProduct.image || 'https://picsum.photos/400/300' }
+                  const currentProducts = Array.isArray(siteData.products) ? siteData.products : []
+                  saveSiteData({ ...siteData, products: [...currentProducts, prod] })
+                  setShowAddProduct(false)
+                  setNewProduct({})
+                }} className="w-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black py-6 rounded-3xl font-black text-xl shadow-xl hover:shadow-[#FFD700]/30 transition hover:scale-[1.02]">
+                  إضافة المنتج
+                </button>
                   <button onClick={() => { setShowAddProduct(false); setNewProduct({}) }} className="w-full bg-white/5 text-white py-5 rounded-3xl font-bold hover:bg-white/10 transition">
                     إلغاء
                   </button>
@@ -2162,7 +2178,8 @@ export default function DashboardPage() {
                 <button onClick={() => {
                   if(!newPortfolio.title) return
                   const item = { id: Date.now(), title: newPortfolio.title, category: newPortfolio.category || 'تصميم', description: newPortfolio.description || '', image: newPortfolio.image || 'https://picsum.photos/400/300' }
-                  saveSiteData({ ...siteData, portfolio: [...siteData.portfolio, item] })
+                  const currentPortfolio = Array.isArray(siteData.portfolio) ? siteData.portfolio : []
+                  saveSiteData({ ...siteData, portfolio: [...currentPortfolio, item] })
                   setShowAddPortfolio(false)
                   setNewPortfolio({})
                 }} className="w-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black py-6 rounded-3xl font-black text-xl shadow-xl hover:shadow-[#FFD700]/30 transition hover:scale-[1.02]">
@@ -2302,7 +2319,8 @@ export default function DashboardPage() {
                 <button onClick={() => {
                   if(!newPartner.name) return
                   const partner = { id: Date.now(), name: newPartner.name, logo: newPartner.logo || 'https://picsum.photos/200/200' }
-                  saveSiteData({ ...siteData, clients: [...siteData.clients, partner] })
+                  const currentClients = Array.isArray(siteData.clients) ? siteData.clients : []
+                  saveSiteData({ ...siteData, clients: [...currentClients, partner] })
                   setShowAddPartner(false)
                   setNewPartner({})
                 }} className="w-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black py-6 rounded-3xl font-black text-xl shadow-xl hover:shadow-[#FFD700]/30 transition hover:scale-[1.02]">
