@@ -4,9 +4,20 @@ import { defaultData } from '../../../lib/site-data'
 
 export async function GET() {
   try {
-    const config = await prisma.siteConfig.findUnique({
+    let config = await prisma.siteConfig.findUnique({
       where: { id: 'current' }
     })
+    
+    // If no config exists, create it with default data automatically!
+    if (!config) {
+      config = await prisma.siteConfig.create({
+        data: {
+          id: 'current',
+          data: JSON.stringify(defaultData)
+        }
+      })
+      console.log('✅ Created default SiteConfig in database!')
+    }
     
     if (config && config.data) {
       try {
