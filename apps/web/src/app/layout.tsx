@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+'use client'
+
 import "../styles/globals.css";
 import { Cairo } from 'next/font/google'
 import Header from '../components/Header'
@@ -6,7 +7,7 @@ import Footer from '../components/Footer'
 import FloatingButtons from '../components/FloatingButtons'
 import AOSInitializer from '../components/AOSInitializer'
 import { ToastContainer } from '../components/Toast'
-import { headers } from 'next/headers'
+import { usePathname } from 'next/navigation'
 
 const cairo = Cairo({
   subsets: ['arabic', 'latin'],
@@ -14,19 +15,13 @@ const cairo = Cairo({
   variable: '--font-cairo',
 })
 
-export const metadata: Metadata = {
-  title: "البحراوي للدعاية والاعلان",
-  description: "البحراوي للدعاية والاعلان - إبداع يفوق الحدود. تميز يصنع التاريخ",
-};
-
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const headersList = await headers()
-  const pathname = headersList.get('x-pathname') || ''
-  const isDashboard = pathname.startsWith('/dashboard')
+  const pathname = usePathname()
+  const isDashboard = pathname?.startsWith('/dashboard') || false
 
   return (
     <html lang="ar" dir="rtl" className={cairo.variable}>
