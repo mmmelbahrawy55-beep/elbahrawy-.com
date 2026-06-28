@@ -15,6 +15,7 @@ export interface Order {
 export interface Category {
   id: string;
   name: string;
+  nameEn?: string;
   icon: string;
   image?: string;
 }
@@ -78,9 +79,68 @@ export const defaultData: SiteData = {
     customers: []
   },
   categories: [
-    { id: "all", name: "الكل", icon: "fa-th", image: "" }
+    { id: "all", name: "الكل", nameEn: "All", icon: "fa-th" },
+    { id: "signs", name: "لوحات إعلانية", nameEn: "Signs", icon: "fa-sign" },
+    { id: "printing", name: "طباعة", nameEn: "Printing", icon: "fa-print" },
+    { id: "branding", name: "هوية تجارية", nameEn: "Branding", icon: "fa-palette" },
+    { id: "laser", name: "حفر ليزر", nameEn: "Laser Engraving", icon: "fa-laser" }
   ],
-  products: [],
+  products: [
+    {
+      id: 1,
+      name: "لوحة إعلانية خارجية مضيئة",
+      price: 3500,
+      category: "signs",
+      image: "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?q=80&w=800&auto=format&fit=crop",
+      description: "لوحة إعلانية فليكس مضيئة بإضاءة LED عالية الجودة، مقاومة للعوامل الجوية.",
+      pricingType: "meter"
+    },
+    {
+      id: 2,
+      name: "كروت شخصية فاخرة",
+      price: 250,
+      category: "printing",
+      image: "https://images.unsplash.com/photo-1586075010923-2dd4570fb338?q=80&w=800&auto=format&fit=crop",
+      description: "1000 كرت شخصي، طباعة وجهين، سلوفان حراري، ورق 350 جرام.",
+      pricingType: "piece"
+    },
+    {
+      id: 3,
+      name: "تصميم هوية تجارية",
+      price: 5000,
+      category: "branding",
+      image: "https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=800&auto=format&fit=crop",
+      description: "شعار احترافي، أوراق رسمية، أظرف، وفولدرات لشركتك.",
+      pricingType: "piece"
+    },
+    {
+      id: 4,
+      name: "درع كريستال محفور",
+      price: 450,
+      category: "laser",
+      image: "https://images.unsplash.com/photo-1531207991955-3e8c8c2c2f7c?q=80&w=800&auto=format&fit=crop",
+      description: "درع كريستال فاخر مع حفر ليزر دقيق للصور والنصوص.",
+      pricingType: "piece"
+    },
+    {
+      id: 5,
+      name: "رول اب ستاند",
+      price: 850,
+      category: "signs",
+      image: "https://images.unsplash.com/photo-1542744095-2ad4870b62ef?q=80&w=800&auto=format&fit=crop",
+      description: "ستاند رول اب مقاس 85×200 سم، طباعة بنر عالية الدقة مع شنطة حمل.",
+      pricingType: "piece"
+    },
+    {
+      id: 6,
+      name: "طباعة تيشرتات",
+      price: 180,
+      category: "printing",
+      image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=800&auto=format&fit=crop",
+      description: "طباعة حرارية ديجيتال على تيشرتات قطنية بجودة ألوان ممتازة.",
+      pricingType: "piece"
+    }
+  ],
   faqs: [],
   portfolio: [],
   clients: [],
