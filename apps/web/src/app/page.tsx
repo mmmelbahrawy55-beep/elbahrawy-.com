@@ -4,6 +4,8 @@
 
 import { siteData as defaultSiteData, SiteData } from '../lib/site-data'
 import { useState, useEffect } from 'react'
+import { db } from '../lib/firebaseConfig'
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore'
 
 export default function Home() {
   const [siteData, setSiteData] = useState<SiteData>(defaultSiteData)
@@ -16,24 +18,20 @@ export default function Home() {
       setSiteData(JSON.parse(storedData))
     }
 
-    // 2. Fetch fresh data from API (for online updates)
-    const fetchFreshData = async () => {
-      try {
-        const response = await fetch('/api/site-data')
-        if (response.ok) {
-          const freshData = await response.json()
-          if (freshData && typeof freshData === 'object' && freshData.categories) {
-            setSiteData(freshData)
-            // Update localStorage as well
-            localStorage.setItem('albahrawy_site_data', JSON.stringify(freshData))
-          }
+    // 2. Real-time sync with Firestore
+    const docRef = doc(db, 'siteData', 'main')
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data()
+        if (data?.data && data.data.categories) {
+          setSiteData(data.data)
+          // Update localStorage as well
+          localStorage.setItem('albahrawy_site_data', JSON.stringify(data.data))
         }
-      } catch (error) {
-        console.error('Failed to fetch fresh site data:', error)
       }
-    }
-
-    fetchFreshData()
+    }, (error) => {
+      console.error('Firestore sync error:', error)
+    })
 
     const handleStorageChange = () => {
       const updatedData = localStorage.getItem('albahrawy_site_data')
@@ -43,7 +41,10 @@ export default function Home() {
     }
 
     window.addEventListener('storage', handleStorageChange)
-    return () => window.removeEventListener('storage', handleStorageChange)
+    return () => {
+      unsubscribe()
+      window.removeEventListener('storage', handleStorageChange)
+    }
   }, [])
 
   const [activeFaq, setActiveFaq] = useState<number | null>(null)
@@ -79,20 +80,12 @@ export default function Home() {
     localStorage.setItem('albahrawy_site_data', JSON.stringify(updatedData))
     setSiteData(updatedData)
 
-    // Save to server (API) for persistent storage
+    // Save to Firestore for persistent storage
     try {
-      const response = await fetch('/api/site-data', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(updatedData),
-      })
-      if (!response.ok) {
-        console.error('Failed to save order to server')
-      }
+      const docRef = doc(db, 'siteData', 'main')
+      await setDoc(docRef, { data: updatedData })
     } catch (error) {
-      console.error('Error saving order to server:', error)
+      console.error('Error saving order to Firestore:', error)
     }
 
     // Simulate successful submission
@@ -118,7 +111,7 @@ export default function Home() {
             <div className="flex flex-col items-center">
               <h1 className="text-4xl md:text-6xl lg:text-8xl font-black tracking-tighter leading-tight flex flex-row gap-2 md:gap-4" dir="ltr">
                 <span className="text-white">ELBA</span> <span className="relative inline-block text-primary">7RAWY
-                  <span className="absolute -bottom-2 md:-bottom-3 left-0 w-full h-1.5 md:h-2 bg-gradient-to-r from-primary via-white/30 to-primary rounded-full shadow-xl shadow-primary/40"></span>
+                  <span className="absolute -bottom-2 md:-bottom-3 left-0 w-full h-1.5 md:h-2 bg-primary rounded-full shadow-xl shadow-primary/40"></span>
                 </span>
               </h1>
               <div className="flex flex-col items-center mt-4" dir="ltr">

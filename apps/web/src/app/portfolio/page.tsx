@@ -2,6 +2,8 @@
 
 import { siteData as defaultSiteData } from '../../lib/site-data'
 import { useState, useEffect } from 'react'
+import { db } from '../../lib/firebaseConfig'
+import { doc, getDoc, onSnapshot } from 'firebase/firestore'
 
 export default function Portfolio() {
   const [siteData, setSiteData] = useState(defaultSiteData)
@@ -13,20 +15,18 @@ export default function Portfolio() {
       setSiteData(JSON.parse(storedData))
     }
 
-    const fetchFreshData = async () => {
-      try {
-        const response = await fetch('/api/site-data')
-        if (response.ok) {
-          const freshData = await response.json()
-          setSiteData(freshData)
-          localStorage.setItem('albahrawy_site_data', JSON.stringify(freshData))
+    const docRef = doc(db, 'siteData', 'main')
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data()
+        if (data?.data) {
+          setSiteData(data.data)
+          localStorage.setItem('albahrawy_site_data', JSON.stringify(data.data))
         }
-      } catch (error) {
-        console.error('Failed to fetch fresh site data:', error)
       }
-    }
-
-    fetchFreshData()
+    }, (error) => {
+      console.error('Firestore sync error:', error)
+    })
 
     const handleStorageChange = () => {
       const updatedData = localStorage.getItem('albahrawy_site_data')
@@ -36,7 +36,10 @@ export default function Portfolio() {
     }
 
     window.addEventListener('storage', handleStorageChange)
-    return () => window.removeEventListener('storage', handleStorageChange)
+    return () => {
+      unsubscribe()
+      window.removeEventListener('storage', handleStorageChange)
+    }
   }, [])
 
   const filteredItems = activeCategory === 'all' 

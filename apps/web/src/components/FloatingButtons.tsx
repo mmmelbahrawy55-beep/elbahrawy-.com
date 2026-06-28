@@ -1,8 +1,29 @@
 'use client'
 
-import { siteData } from '../lib/site-data'
+import { useState, useEffect } from 'react'
+import { siteData as defaultSiteData } from '../lib/site-data'
+import { db } from '../lib/firebaseConfig'
+import { doc, onSnapshot } from 'firebase/firestore'
 
 export default function FloatingButtons() {
+  const [siteData, setSiteData] = useState(defaultSiteData)
+
+  // Load data from Firestore in real-time
+  useEffect(() => {
+    const docRef = doc(db, 'siteData', 'main');
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data?.data) {
+          setSiteData(data.data);
+        }
+      }
+    }, (error) => {
+      console.error('Firestore sync error:', error);
+    });
+    return () => unsubscribe();
+  }, []);
+
   return (
     <>
       {/* Floating WhatsApp Button */}

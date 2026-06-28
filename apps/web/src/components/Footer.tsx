@@ -1,6 +1,29 @@
-import { siteData } from '../lib/site-data'
+'use client'
+
+import { useState, useEffect } from 'react'
+import { siteData as defaultSiteData } from '../lib/site-data'
+import { db } from '../lib/firebaseConfig'
+import { doc, onSnapshot } from 'firebase/firestore'
 
 export default function Footer() {
+  const [siteData, setSiteData] = useState(defaultSiteData)
+
+  // Load data from Firestore in real-time
+  useEffect(() => {
+    const docRef = doc(db, 'siteData', 'main');
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data?.data) {
+          setSiteData(data.data);
+        }
+      }
+    }, (error) => {
+      console.error('Firestore sync error:', error);
+    });
+    return () => unsubscribe();
+  }, []);
+
   return (
     <footer className="bg-background border-t border-border pt-24 pb-8">
       <div className="container mx-auto px-6">

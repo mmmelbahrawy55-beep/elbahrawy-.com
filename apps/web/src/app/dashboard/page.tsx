@@ -37,6 +37,8 @@ import {
 } from 'lucide-react'
 import { siteData as initialSiteData } from '../../lib/site-data'
 import { showToast } from '../../components/Toast'
+import { db } from '../../lib/firebaseConfig'
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore'
 
 // --- Types ---
 interface Customer {
@@ -157,7 +159,7 @@ export default function DashboardPage() {
   const [editingCustomer, setEditingCustomer] = useState<Partial<Customer>>({})
   const [newSupplier, setNewSupplier] = useState<Partial<Supplier>>({})
   const [editingSupplier, setEditingSupplier] = useState<Partial<Supplier>>({})
-  const [newCategory, setNewCategory] = useState<Partial<{ id: number; name: string; image: string }>>({})
+  const [newCategory, setNewCategory] = useState<Partial<{ id: number; name: string; nameEn: string; icon: string }>>({})
   const [editCategoryForm, setEditCategoryForm] = useState<any>(null)
   const [newProduct, setNewProduct] = useState<Partial<{
     id: number; name: string; price: number; category: string; description: string; image: string;
@@ -179,39 +181,31 @@ export default function DashboardPage() {
       return
     }
 
-    // --- Load Saved Data from Database First ---
-    const loadData = async () => {
-      try {
-        const res = await fetch('/api/site-data')
-        if (!res.ok) throw new Error('Failed to fetch')
-        const data = await res.json()
-        if (data && typeof data === 'object') {
-          setSiteData(data)
-          // Also sync to localStorage
-          localStorage.setItem('albahrawy_site_data', JSON.stringify(data))
-        }
-      } catch (error) {
-        console.error('Error loading data from server, falling back to localStorage:', error)
-        // --- Fallback to Saved Data ---
-        const storedData = localStorage.getItem('albahrawy_site_data')
-        if (storedData) {
-          try {
-            setSiteData(JSON.parse(storedData))
-          } catch (e) {
-            console.error('Failed to parse localStorage data')
-          }
-        }
-      }
-    }
+    // --- Real-time Firestore Sync (Snapshot Listener ---
+    const docRef = doc(db, 'siteData', 'main')
     
-    loadData()
+    // Set up real-time listener
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data()
+        if (data?.data) {
+          setSiteData(data.data)
+        }
+      } else {
+        // If no data in Firestore, use initial data and save it
+        saveSiteData(initialSiteData, false)
+      }
+      setIsLoggedIn(true)
+      setLoading(false)
+    }, (error) => {
+      console.error('Firestore Listener Error:', error)
+      setSiteData(initialSiteData)
+      setIsLoggedIn(true)
+      setLoading(false)
+    })
 
-    // --- Load API Keys ---
-    const storedApiKeys = localStorage.getItem('albahrawy_api_keys')
-    if (storedApiKeys) setApiKeys(JSON.parse(storedApiKeys))
-
-    setIsLoggedIn(true)
-    setLoading(false)
+    // Cleanup listener on unmount
+    return () => unsubscribe()
   }, [router])
 
   useEffect(() => {
@@ -240,29 +234,18 @@ export default function DashboardPage() {
   const saveSiteData = async (newData: any, showNotification = true) => {
     // Optimistic update
     setSiteData(newData)
-    localStorage.setItem('albahrawy_site_data', JSON.stringify(newData))
     
-    // Save to server for online persistence
+    // Save ONLY to Firestore
     try {
-      const response = await fetch('/api/site-data', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newData),
-      })
-      
-      const result = await response.json()
-      
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to save to server')
-      }
-      
+      const docRef = doc(db, 'siteData', 'main')
+      await setDoc(docRef, { data: newData })
       if (showNotification) {
         showToast('تم حفظ البيانات بنجاح!', 'success')
       }
-    } catch (error: any) {
-      console.error('Error saving site data to server:', error)
+    } catch (error) {
+      console.error('Error saving to Firestore:', error)
       if (showNotification) {
-        showToast(`خطأ في الحفظ: ${error.message || 'تأكد من اتصال قاعدة البيانات'}`, 'error')
+        showToast('حدث خطأ أثناء حفظ البيانات!', 'error')
       }
     }
   }
@@ -1021,26 +1004,27 @@ export default function DashboardPage() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {siteData.categories.map(cat => (
-                  <div key={cat.id} className="bg-[#0F0F0F] border border-white/5 rounded-[2rem] overflow-hidden group">
-                    <div className="h-40 relative">
-                      <img src={cat.image} className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-black/70 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition">
-                        <button onClick={() => {
-                          setEditCategoryForm(cat)
-                          setShowEditCategory(true)
-                        }} className="w-10 h-10 bg-[#FFD700] text-black rounded-full flex items-center justify-center hover:scale-110 transition">
-                          <Edit className="w-5 h-5" />
-                        </button>
-                        <button onClick={() => {
-                          const newCats = siteData.categories.filter(c => c.id !== cat.id)
-                          saveSiteData({ ...siteData, categories: newCats })
-                        }} className="w-10 h-10 bg-red-500 text-white rounded-full flex items-center justify-center hover:scale-110 transition">
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </div>
+                  <div key={cat.id} className="bg-[#0F0F0F] border border-white/5 rounded-[2rem] p-8 group relative flex flex-col items-center gap-4">
+                    <div className="absolute inset-0 bg-black/70 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition rounded-[2rem]">
+                      <button onClick={() => {
+                        setEditCategoryForm(cat)
+                        setShowEditCategory(true)
+                      }} className="w-10 h-10 bg-[#FFD700] text-black rounded-full flex items-center justify-center hover:scale-110 transition">
+                        <Edit className="w-5 h-5" />
+                      </button>
+                      <button onClick={() => {
+                        const newCats = siteData.categories.filter(c => c.id !== cat.id)
+                        saveSiteData({ ...siteData, categories: newCats })
+                      }} className="w-10 h-10 bg-red-500 text-white rounded-full flex items-center justify-center hover:scale-110 transition">
+                        <Trash2 className="w-5 h-5" />
+                      </button>
                     </div>
-                    <div className="p-6">
+                    <div className="w-20 h-20 bg-[#FFD700]/10 rounded-2xl flex items-center justify-center text-4xl text-[#FFD700]">
+                      <i className={`fas ${cat.icon}`}></i>
+                    </div>
+                    <div className="text-center">
                       <h4 className="text-lg font-bold text-white">{cat.name}</h4>
+                      {cat.nameEn && <p className="text-sm text-gray-400">{cat.nameEn}</p>}
                     </div>
                   </div>
                 ))}
@@ -1762,45 +1746,51 @@ export default function DashboardPage() {
             </div>
             <div className="space-y-8">
               <div className="space-y-3">
-                <label className="text-sm font-bold text-gray-400">اسم القسم</label>
+                <label className="text-sm font-bold text-gray-400">اسم القسم (العربية)</label>
                 <input placeholder="مثال: لوحات إعلانية" value={newCategory.name || ''} onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })} className="w-full bg-black/60 border-2 border-white/10 rounded-2xl px-6 py-5 text-lg text-white focus:outline-none focus:border-[#FFD700] transition" />
               </div>
               <div className="space-y-3">
-                <label className="text-sm font-bold text-gray-400">أيقونة القسم (مثال: fa-tag)</label>
-                <input placeholder="fa-tag" value={newCategory.icon || ''} onChange={(e) => setNewCategory({ ...newCategory, icon: e.target.value })} className="w-full bg-black/60 border-2 border-white/10 rounded-2xl px-6 py-5 text-lg text-white focus:outline-none focus:border-[#FFD700] transition" />
+                <label className="text-sm font-bold text-gray-400">اختر أيقونة للقسم</label>
+                <div className="grid grid-cols-5 md:grid-cols-7 gap-3 bg-black/40 p-4 rounded-2xl border border-white/10">
+                  {[
+                    'fa-th', 'fa-tag', 'fa-palette', 'fa-print', 'fa-pen-to-square',
+                    'fa-star', 'fa-heart', 'fa-bolt', 'fa-folder', 'fa-images',
+                    'fa-sign-hanging', 'fa-tv', 'fa-laptop', 'fa-mobile-alt', 'fa-shopping-bag',
+                    'fa-shopping-cart', 'fa-truck', 'fa-envelope', 'fa-phone', 'fa-map-marker-alt',
+                    'fa-bullhorn', 'fa-chart-line', 'fa-paint-roller', 'fa-ruler-combined', 'fa-cube'
+                  ].map((iconClass) => (
+                    <button
+                      key={iconClass}
+                      onClick={() => setNewCategory({ ...newCategory, icon: iconClass })}
+                      className={`w-12 h-12 flex items-center justify-center rounded-xl border-2 transition-all text-xl ${
+                        newCategory.icon === iconClass
+                          ? 'border-[#FFD700] bg-[#FFD700]/10 text-[#FFD700]'
+                          : 'border-white/10 text-gray-400 hover:border-[#FFD700]/50 hover:bg-white/5'
+                      }`}
+                      title={iconClass}
+                    >
+                      <i className={`fas ${iconClass}`}></i>
+                    </button>
+                  ))}
+                </div>
+                <div className="text-xs text-gray-500 text-center mt-2">أو اكتب اسم أيقونة من Font Awesome مباشرة</div>
+                <input
+                  placeholder="مثال: fa-gift"
+                  value={newCategory.icon || ''}
+                  onChange={(e) => setNewCategory({ ...newCategory, icon: e.target.value })}
+                  className="w-full bg-black/60 border-2 border-white/10 rounded-2xl px-6 py-3 text-lg text-white focus:outline-none focus:border-[#FFD700] transition"
+                />
               </div>
 
-              <div className="space-y-4">
-                <label className="text-sm font-bold text-gray-400">صورة القسم</label>
-                
-                {newCategory.image && (
-                  <div className="relative h-60 bg-black/40 rounded-3xl overflow-hidden border-2 border-white/10">
-                    <img src={newCategory.image} className="w-full h-full object-cover" alt="Preview" />
-                    <button onClick={() => setNewCategory({ ...newCategory, image: '' })} className="absolute top-4 left-4 w-10 h-10 bg-red-500/90 text-white rounded-full flex items-center justify-center hover:scale-110 transition">
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-                )}
-                
-                <label className="flex flex-col items-center justify-center gap-4 p-8 border-2 border-dashed border-white/20 rounded-3xl cursor-pointer hover:border-[#FFD700] hover:bg-[#FFD700]/5 transition">
-                  <Upload className="w-12 h-12 text-[#FFD700]" />
-                  <span className="text-lg font-bold text-white">رفع صورة من جهازك</span>
-                  <span className="text-xs text-gray-500">PNG, JPG, GIF حتى 10MB</span>
-                  <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, (img: string) => setNewCategory({ ...newCategory, image: img }))} />
-                </label>
-                
-                <div className="relative">
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-5 pointer-events-none">
-                    <ImageIcon className="w-5 h-5 text-gray-500" />
-                  </div>
-                  <input placeholder="أو اضع رابط الصورة هنا" value={newCategory.image || ''} onChange={(e) => setNewCategory({ ...newCategory, image: e.target.value })} className="w-full bg-black/60 border-2 border-white/10 rounded-2xl px-6 pr-16 py-5 text-lg text-white focus:outline-none focus:border-[#FFD700] transition" />
-                </div>
+              <div className="space-y-3">
+                <label className="text-sm font-bold text-gray-400">اسم القسم (الانجليزية)</label>
+                <input placeholder="Example: Signs" value={newCategory.nameEn || ''} onChange={(e) => setNewCategory({ ...newCategory, nameEn: e.target.value })} className="w-full bg-black/60 border-2 border-white/10 rounded-2xl px-6 py-5 text-lg text-white focus:outline-none focus:border-[#FFD700] transition" />
               </div>
 
               <div className="pt-4 space-y-4">
                 <button onClick={() => {
                   if(!newCategory.name) return
-                  const cat = { id: Date.now().toString(), name: newCategory.name, icon: newCategory.icon || 'fa-tag', image: newCategory.image || 'https://picsum.photos/400/300' }
+                  const cat = { id: Date.now().toString(), name: newCategory.name, nameEn: newCategory.nameEn || '', icon: newCategory.icon || 'fa-tag' }
                   const currentCategories = Array.isArray(siteData.categories) ? siteData.categories : []
                   saveSiteData({ ...siteData, categories: [...currentCategories, cat] })
                   setShowAddCategory(false)
@@ -1831,39 +1821,44 @@ export default function DashboardPage() {
             </div>
             <div className="space-y-8">
               <div className="space-y-3">
-                <label className="text-sm font-bold text-gray-400">اسم القسم</label>
+                <label className="text-sm font-bold text-gray-400">اسم القسم (العربية)</label>
                 <input placeholder="مثال: لوحات إعلانية" value={editCategoryForm.name || ''} onChange={(e) => setEditCategoryForm({ ...editCategoryForm, name: e.target.value })} className="w-full bg-black/60 border-2 border-white/10 rounded-2xl px-6 py-5 text-lg text-white focus:outline-none focus:border-[#FFD700] transition" />
               </div>
               <div className="space-y-3">
-                <label className="text-sm font-bold text-gray-400">أيقونة القسم (مثال: fa-tag)</label>
-                <input placeholder="fa-tag" value={editCategoryForm.icon || ''} onChange={(e) => setEditCategoryForm({ ...editCategoryForm, icon: e.target.value })} className="w-full bg-black/60 border-2 border-white/10 rounded-2xl px-6 py-5 text-lg text-white focus:outline-none focus:border-[#FFD700] transition" />
+                <label className="text-sm font-bold text-gray-400">اسم القسم (الانجليزية)</label>
+                <input placeholder="Example: Signs" value={editCategoryForm.nameEn || ''} onChange={(e) => setEditCategoryForm({ ...editCategoryForm, nameEn: e.target.value })} className="w-full bg-black/60 border-2 border-white/10 rounded-2xl px-6 py-5 text-lg text-white focus:outline-none focus:border-[#FFD700] transition" />
               </div>
-
-              <div className="space-y-4">
-                <label className="text-sm font-bold text-gray-400">صورة القسم</label>
-                
-                {editCategoryForm.image && (
-                  <div className="relative h-60 bg-black/40 rounded-3xl overflow-hidden border-2 border-white/10">
-                    <img src={editCategoryForm.image} className="w-full h-full object-cover" alt="Preview" />
-                    <button onClick={() => setEditCategoryForm({ ...editCategoryForm, image: '' })} className="absolute top-4 left-4 w-10 h-10 bg-red-500/90 text-white rounded-full flex items-center justify-center hover:scale-110 transition">
-                      <X className="w-5 h-5" />
+              <div className="space-y-3">
+                <label className="text-sm font-bold text-gray-400">اختر أيقونة للقسم</label>
+                <div className="grid grid-cols-5 md:grid-cols-7 gap-3 bg-black/40 p-4 rounded-2xl border border-white/10">
+                  {[
+                    'fa-th', 'fa-tag', 'fa-palette', 'fa-print', 'fa-pen-to-square',
+                    'fa-star', 'fa-heart', 'fa-bolt', 'fa-folder', 'fa-images',
+                    'fa-sign-hanging', 'fa-tv', 'fa-laptop', 'fa-mobile-alt', 'fa-shopping-bag',
+                    'fa-shopping-cart', 'fa-truck', 'fa-envelope', 'fa-phone', 'fa-map-marker-alt',
+                    'fa-bullhorn', 'fa-chart-line', 'fa-paint-roller', 'fa-ruler-combined', 'fa-cube'
+                  ].map((iconClass) => (
+                    <button
+                      key={iconClass}
+                      onClick={() => setEditCategoryForm({ ...editCategoryForm, icon: iconClass })}
+                      className={`w-12 h-12 flex items-center justify-center rounded-xl border-2 transition-all text-xl ${
+                        editCategoryForm.icon === iconClass
+                          ? 'border-[#FFD700] bg-[#FFD700]/10 text-[#FFD700]'
+                          : 'border-white/10 text-gray-400 hover:border-[#FFD700]/50 hover:bg-white/5'
+                      }`}
+                      title={iconClass}
+                    >
+                      <i className={`fas ${iconClass}`}></i>
                     </button>
-                  </div>
-                )}
-                
-                <label className="flex flex-col items-center justify-center gap-4 p-8 border-2 border-dashed border-white/20 rounded-3xl cursor-pointer hover:border-[#FFD700] hover:bg-[#FFD700]/5 transition">
-                  <Upload className="w-12 h-12 text-[#FFD700]" />
-                  <span className="text-lg font-bold text-white">رفع صورة من جهازك</span>
-                  <span className="text-xs text-gray-500">PNG, JPG, GIF حتى 10MB</span>
-                  <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, (img: string) => setEditCategoryForm({ ...editCategoryForm, image: img }))} />
-                </label>
-                
-                <div className="relative">
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-5 pointer-events-none">
-                    <ImageIcon className="w-5 h-5 text-gray-500" />
-                  </div>
-                  <input placeholder="أو اضع رابط الصورة هنا" value={editCategoryForm.image || ''} onChange={(e) => setEditCategoryForm({ ...editCategoryForm, image: e.target.value })} className="w-full bg-black/60 border-2 border-white/10 rounded-2xl px-6 pr-16 py-5 text-lg text-white focus:outline-none focus:border-[#FFD700] transition" />
+                  ))}
                 </div>
+                <div className="text-xs text-gray-500 text-center mt-2">أو اكتب اسم أيقونة من Font Awesome مباشرة</div>
+                <input
+                  placeholder="مثال: fa-gift"
+                  value={editCategoryForm.icon || ''}
+                  onChange={(e) => setEditCategoryForm({ ...editCategoryForm, icon: e.target.value })}
+                  className="w-full bg-black/60 border-2 border-white/10 rounded-2xl px-6 py-3 text-lg text-white focus:outline-none focus:border-[#FFD700] transition"
+                />
               </div>
 
               <div className="pt-4 space-y-4">

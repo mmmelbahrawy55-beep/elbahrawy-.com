@@ -23,6 +23,9 @@ import {
   Star,
   Zap
 } from 'lucide-react';
+import { siteData as defaultSiteData } from '../../lib/site-data';
+import { db } from '../../lib/firebaseConfig';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 
 // Same icons as admin panel
 const categoryIcons = [
@@ -53,50 +56,50 @@ export default function ShopPage() {
     { role: 'bot', text: 'مرحبًا بك في البحراوي للدعاية! كيف يمكننا مساعدتك اليوم؟' }
   ]);
   const [chatInput, setChatInput] = useState('');
-  const [products, setProducts] = useState<any[]>([]);
-  const [portfolioItems, setPortfolioItems] = useState<any[]>([]);
+  const [siteData, setSiteData] = useState(defaultSiteData);
+  const [productQuantities, setProductQuantities] = useState<Record<number | string, number>>({});
 
-  // Load data from localStorage
+  // Load data from localStorage and Firestore
   useEffect(() => {
-    loadData();
-    window.addEventListener('storage', loadData);
-    return () => window.removeEventListener('storage', loadData);
+    // Load from localStorage first
+    const storedData = localStorage.getItem('albahrawy_site_data');
+    if (storedData) {
+      setSiteData(JSON.parse(storedData));
+    }
+
+    // Real-time sync with Firestore
+    const docRef = doc(db, 'siteData', 'main');
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data?.data) {
+          setSiteData(data.data);
+          localStorage.setItem('albahrawy_site_data', JSON.stringify(data.data));
+        }
+      }
+    }, (error) => {
+      console.error('Firestore sync error:', error);
+    });
+
+    window.addEventListener('storage', () => {
+      const storedData = localStorage.getItem('albahrawy_site_data');
+      if (storedData) {
+        setSiteData(JSON.parse(storedData));
+      }
+    });
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener('storage', () => {});
+    };
   }, []);
 
-  const loadData = () => {
-    const storedProducts = localStorage.getItem('admin_products');
-    const storedPortfolio = localStorage.getItem('admin_portfolio');
-    
-    if (storedProducts) {
-      setProducts(JSON.parse(storedProducts));
-    } else {
-      setProducts([
-        { id: '1', name: 'بطاقة شخصية فاخرة', price: 50, category: 'تصميم', description: 'بطاقة شخصية عالية الجودة', image: 'https://picsum.photos/seed/card/300/300' },
-        { id: '2', name: 'كتيب تعريفي', price: 300, category: 'طباعة', description: 'كتيب تعريفي للشركات', image: 'https://picsum.photos/seed/book/300/300' },
-      ]);
-    }
-
-    if (storedPortfolio) {
-      setPortfolioItems(JSON.parse(storedPortfolio));
-    } else {
-      setPortfolioItems([
-        { id: '1', title: 'هوية بصرية لشركة XYZ', category: 'تصميم', description: 'تصميم هوية بصرية كاملة', image: 'https://picsum.photos/seed/portfolio1/400/300' },
-        { id: '2', title: 'حملة تبليغية جديدة', category: 'تسويق', description: 'حملة تسويقية متكاملة', image: 'https://picsum.photos/seed/portfolio2/400/300' },
-      ]);
-    }
-  };
-
-  // Extract categories from products
-  const categories = Array.from(new Set(products.map(p => p.category))).map((category, index) => ({
-    id: index + 1,
-    name: category,
-    description: 'منتجات ' + category,
-    icon: 'Layout'
-  }));
+  // Use categories from siteData
+  const categories = siteData.categories;
 
   const filteredProducts = selectedCategory
-    ? products.filter(p => p.category === selectedCategory)
-    : products;
+    ? siteData.products.filter(p => p.category === selectedCategory)
+    : siteData.products;
 
   const sendMessage = () => {
     if (!chatInput.trim()) return;
@@ -231,23 +234,19 @@ export default function ShopPage() {
               <h3 className="text-lg font-black text-white">الكل</h3>
             </button>
 
-            {categories.map((category) => {
-              const IconObj = categoryIcons.find(i => i.id === category.icon);
-              const Icon = IconObj?.icon || Layout;
-              return (
-                <button
-                  key={category.id}
-                  onClick={() => setSelectedCategory(category.name)}
-                  className={`p-8 rounded-2xl border-2 transition-all ${selectedCategory === category.name ? 'border-[#FFD700] bg-[#FFD700]/10' : 'border-white/10 bg-white/5 hover:border-[#FFD700]/50'}`}
-                >
-                  <div className="w-16 h-16 bg-[#FFD700]/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Icon className="w-8 h-8 text-[#FFD700]" />
-                  </div>
-                  <h3 className="text-lg font-black text-white">{category.name}</h3>
-                  <p className="text-gray-400 text-sm mt-2">{category.description}</p>
-                </button>
-              );
-            })}
+            {categories.filter(cat => cat.id !== 'all').map((category) => (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                className={`p-8 rounded-2xl border-2 transition-all ${selectedCategory === category.id ? 'border-[#FFD700] bg-[#FFD700]/10' : 'border-white/10 bg-white/5 hover:border-[#FFD700]/50'}`}
+              >
+                <div className="w-16 h-16 bg-[#FFD700]/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i className={`fas ${category.icon} text-3xl text-[#FFD700]`}></i>
+                </div>
+                <h3 className="text-lg font-black text-white">{category.name}</h3>
+                {category.nameEn && <p className="text-gray-400 text-sm mt-2">{category.nameEn}</p>}
+              </button>
+            ))}
           </div>
         </div>
       </section>
@@ -261,27 +260,52 @@ export default function ShopPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredProducts.map((product) => (
-              <div key={product.id} className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-[#FFD700]/50 hover:scale-[1.02] transition-all duration-300">
-                <img
-                  src={product.imageUrl || product.image || `https://picsum.photos/seed/product${product.id}/300/300`}
-                  alt={product.name}
-                  className="w-full h-64 object-cover"
-                />
-                <div className="p-6">
-                  <span className="text-[#FFD700] text-xs font-bold uppercase tracking-wider">{product.category}</span>
-                  <h3 className="text-2xl font-black text-white mt-2 mb-2">{product.name}</h3>
-                  {product.description && <p className="text-gray-400 text-sm mb-4">{product.description}</p>}
-                  <div className="flex items-center justify-between">
-                    <p className="text-3xl font-black text-[#FFD700]">{formatCurrency(product.price)}</p>
-                    <button className="bg-[#FFD700] text-black px-6 py-3 rounded-xl font-black hover:bg-[#e6c200] transition-all flex items-center gap-2">
+            {filteredProducts.map((product) => {
+              const quantity = productQuantities[product.id] || 1;
+              const totalPrice = product.price * quantity;
+              return (
+                <div key={product.id} className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-[#FFD700]/50 hover:scale-[1.02] transition-all duration-300">
+                  <img
+                    src={product.imageUrl || product.image || `https://picsum.photos/seed/product${product.id}/300/300`}
+                    alt={product.name}
+                    className="w-full h-64 object-cover"
+                  />
+                  <div className="p-6">
+                    <span className="text-[#FFD700] text-xs font-bold uppercase tracking-wider">{product.category}</span>
+                    <h3 className="text-2xl font-black text-white mt-2 mb-2">{product.name}</h3>
+                    {product.description && <p className="text-gray-400 text-sm mb-4">{product.description}</p>}
+                    <div className="flex items-baseline gap-2 mb-4">
+                      <span className="text-gray-400 text-sm">ج.م / {product.pricingType === 'piece' ? 'القطعة' : product.pricingType === 'meter' ? 'المتر' : 'الحرف'}</span>
+                      <span className="text-3xl font-black text-[#FFD700]">{formatCurrency(product.price)}</span>
+                    </div>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3 bg-black/30 rounded-xl px-4 py-2">
+                        <button
+                          onClick={() => setProductQuantities({ ...productQuantities, [product.id]: Math.max(1, quantity - 1) })}
+                          className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-[#FFD700] hover:text-black transition-all"
+                        >
+                          -
+                        </button>
+                        <span className="text-xl font-black text-white w-8 text-center">{quantity}</span>
+                        <button
+                          onClick={() => setProductQuantities({ ...productQuantities, [product.id]: quantity + 1 })}
+                          className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-[#FFD700] hover:text-black transition-all"
+                        >
+                          +
+                        </button>
+                      </div>
+                      <div className="text-xl font-black text-white">
+                        {formatCurrency(totalPrice)}
+                      </div>
+                    </div>
+                    <button className="w-full bg-[#FFD700] text-black px-6 py-3 rounded-xl font-black hover:bg-[#e6c200] transition-all flex items-center justify-center gap-2">
                       <ShoppingCart size={20} />
                       طلب الآن
                     </button>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -295,11 +319,11 @@ export default function ShopPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {portfolioItems.map((item) => (
+            {siteData.portfolio.map((item) => (
               <div key={item.id} className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-[#FFD700]/50 hover:scale-[1.02] transition-all duration-300 group">
                 <div className="relative overflow-hidden">
                   <img
-                    src={item.imageUrl}
+                    src={item.image}
                     alt={item.title}
                     className="w-full h-72 object-cover group-hover:scale-110 transition-transform duration-500"
                   />

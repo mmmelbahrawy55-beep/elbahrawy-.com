@@ -1,15 +1,42 @@
 'use client'
 
-import { siteData } from '../../lib/site-data'
-import { useState } from 'react'
+import { siteData as defaultSiteData } from '../../lib/site-data'
+import { useState, useEffect } from 'react'
+import { db } from '../../lib/firebaseConfig'
+import { doc, getDoc, onSnapshot } from 'firebase/firestore'
 
 export default function Contact() {
+  const [siteData, setSiteData] = useState(defaultSiteData)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     message: ''
   })
+
+  useEffect(() => {
+    // Load from localStorage first
+    const storedData = localStorage.getItem('albahrawy_site_data')
+    if (storedData) {
+      setSiteData(JSON.parse(storedData))
+    }
+
+    // Real-time sync from Firestore
+    const docRef = doc(db, 'siteData', 'main')
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data()
+        if (data?.data) {
+          setSiteData(data.data)
+          localStorage.setItem('albahrawy_site_data', JSON.stringify(data.data))
+        }
+      }
+    }, (error) => {
+      console.error('Firestore sync error:', error)
+    })
+
+    return () => unsubscribe()
+  }, [])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
